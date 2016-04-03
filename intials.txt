@@ -1,0 +1,30 @@
+I$Ablock.min%    	
+O9999 (Ablock.min)		
+G17 G40 G80 G90 G20 		
+(Tool: 1/4" ball nose endmill) 		
+(Tool Number: 14)		
+M06 T14		
+G56 H14 D01		
+G00 X0.39 Y1.01 Z0.5 		
+M08		
+M03 S8000		
+(Letter A, sides and top) 		
+G01 Z0.1 F30 		
+G01 Z-0.200 F2		
+G03 X1.093 Y0.7072 I0.291 J-0.298		
+G01 X1.35 Y2.83		
+G01 Z0.5		
+G00 X3.15 Y0.675		
+(Move to back of the d)
+G01 Z0.1 F30 		
+G01 Z-0.200 F2		(Plunge)
+G02 X3.08 Y1.34 I-0.611 J0.278		
+G01 Y2.706		
+G01 Y0.954	
+G03 X3.79 Y0.282 I0.69 J0.015	(Tail)
+
+G01 z0.1 F30
+G00 X3.68 Y1.22 
+(Curve on the F)
+G02 X4.64 Y0.30 I0.92 J-0.017
+%
