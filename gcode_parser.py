@@ -7,9 +7,14 @@
 
 import sys, fileinput, math, re
 
+prevX      = float(0.0)
+prevY      = float(0.0)
+prevZ      = float(0.0)
 globalX      = float(0.0)
 globalY      = float(0.0)
 globalZ      = float(0.0)
+globalI      = float(0.0)
+globalJ      = float(0.0)
 feedRate     = 0
 spindleSpeed = 0
 toolNum      = 0
@@ -22,6 +27,7 @@ def parseX(line, index):
     global globalX
     if(not line[index][0] == 'X'):
         exit(1)
+    prevX = globalX
     globalX = float(line[index][1:])
     #print("Parsing X: %f\n") % globalX
     index += 1
@@ -31,6 +37,7 @@ def parseY(line, index):
     global globalY
     if(not line[index][0] == 'Y'):
         exit(1)
+    prevY = globalY
     globalY = float(line[index][1:])
     #print("Parsing Y: %f\n") % globalY
     index += 1
@@ -40,15 +47,26 @@ def parseZ(line, index):
     global globalZ
     if(not line[index][0] == 'Z'):
         exit(1)
+    prevZ = globalZ
     globalZ = float(line[index][1:])
     #print("Parsing Z: %f\n") % globalZ
     index += 1
     return index
 
 def parseI(line, index):
+    global globalI
+    if(not line[index][0] == 'I'):
+        exit(1)
+    globalI = float(line[index][1:])
+    #print("Parsing Z: %f\n") % globalZ
     index += 1
     return index
 def parseJ(line, index):
+    global globalJ
+    if(not line[index][0] == 'J'):
+        exit(1)
+    globalJ = float(line[index][1:])
+    #print("Parsing Z: %f\n") % globalZ
     index += 1
     return index
 
@@ -176,8 +194,8 @@ def parseFile(fileName):
                 print("\n\nTrying to match the z thing.\n\n")
             print("%d. Line: %s\n") % (lineNum, gcode)
             print("FeedRate: %d\t Spindle Speed: %d\t Tool Number:%d MovementType: %s\n") % (feedRate, spindleSpeed, toolNum, movementType)
+            print("(%f,%f) (I,J)\n") %(globalI, globalJ)
             print("Location: (%f,%f,%f)\n") % (globalX, globalY, globalZ)
-
 parseFile(str(sys.argv[1]))
 
 
