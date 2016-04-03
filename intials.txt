@@ -17,7 +17,7 @@ G01 Z0.5
 G00 X3.15 Y0.675		
 (Move to back of the d)
 G01 Z0.1 F30 		
-G01 Z-0.200 F2		(Plunge)
+Z-0.200 F2		(Plunge)
 G02 X3.08 Y1.34 I-0.611 J0.278		
 G01 Y2.706		
 G01 Y0.954	
