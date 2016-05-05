@@ -5,11 +5,11 @@
 #
 
 
-import sys, fileinput, math, re
+import sys, fileinput, math, re, turtle
 
-prevX      = float(0.0)
-prevY      = float(0.0)
-prevZ      = float(0.0)
+prevX        = float(0.0)
+prevY        = float(0.0)
+prevZ        = float(0.0)
 globalX      = float(0.0)
 globalY      = float(0.0)
 globalZ      = float(0.0)
@@ -20,9 +20,17 @@ spindleSpeed = 0
 toolNum      = 0
 toolSize     = 0
 def parseM(line, index):
-    #print("Found a valid m: Here is the line: %s\n") % line
     index += 1
     return index
+    '''
+    #print("Found a valid G cmd: %s. Index: %d\n") % (line, index)
+    if(not line[index][0] == 'M'):
+        exit(1)
+    index += 1
+    if(line[index-1] in validMCmds):
+        index = validMCmds[line[index-1]](line, index)
+    return index
+    '''
 def parseX(line, index):
     global globalX
     if(not line[index][0] == 'X'):
@@ -138,10 +146,10 @@ def parseFeed(line, index):
     if(not line[index][0] == 'F'):
         exit(1)
     if(len(line[index]) == 1):
-        feedRate = int(line[index+1])
+        feedRate = float(line[index+1])
         index += 2
     else:
-        feedRate = int(line[index][1:])
+        feedRate = float(line[index][1:])
         index += 1
     return index
 
@@ -160,6 +168,12 @@ validGCmds      = {  'G00':parseG0, 'G0': parseG0,
                 'G01':parseG1, 'G1':parseG1,
                 'G02':parseG2, 'G2':parseG2,
                 'G03':parseG3, 'G3':parseG3}
+'''
+validMCmds      = {  'M03':parseM3, 'M3': parseM3,
+                'M05':parseM5, 'M5':parseM5,
+                'M06':parseM6, 'M6':parseM6,
+                'M08':parseM8, 'M8':parseM8}
+'''
 
 #Movement Type:
 #Sticks with whatever the last movement type was
@@ -180,8 +194,25 @@ def parseLine(line):
             i = validGCmds[movementType](line,i)
         else:
             i += 1
+plot_scale = 100
+#returns the distance between point 1 and point 2
+def calcDistance(x1, y1, x2, y2):
+    global plot_scale
+    return math.hypot(plot_scale*(x2 - x1),plot_scale*(y2 - y1))
+def calcExtent(pt1, pt2):
+    radius
+def drawArc(dir):
+    radius = calcDistance(globalX, globalY, globalI, globalJ)
+    print("Radius is: %d. Stating points are: %d,%d. End points are: %d, %d") % (radius, prevX, prevY, globalX, globalY)
+    distancePoints = calcDistance(prevX, prevY, globalX, globalY)
+    a = math.degrees(math.acos((2*(radius**2) - distancePoints**2)/(2*(radius**2))))
+    if(dir == 1):
+        turtle.circle(radius, a, 10)
+    else:
+        turtle.circle(radius, -a, 10)
 def parseFile(fileName):
     with open(fileName) as file:
+        global plot_scale
         lineNum = 0
         text=''
         count=0
@@ -196,6 +227,16 @@ def parseFile(fileName):
             print("FeedRate: %d\t Spindle Speed: %d\t Tool Number:%d MovementType: %s\n") % (feedRate, spindleSpeed, toolNum, movementType)
             print("(%f,%f) (I,J)\n") %(globalI, globalJ)
             print("Location: (%f,%f,%f)\n") % (globalX, globalY, globalZ)
+            #CCW Arc: I,J are centerpoints, globalX, globalY are endpoints
+            '''
+            if(movementType == 'G02' or movementType == 'G2'):
+                #drawArc(1)
+            elif(movementType == 'G03' or movementType == 'G3'):
+                #drawArc(0)
+            else:
+                #turtle.goto(plot_scale*globalX, plot_scale*globalY)
+            '''
 parseFile(str(sys.argv[1]))
+#turtle.done()
 
 
