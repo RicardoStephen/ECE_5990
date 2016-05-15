@@ -248,7 +248,7 @@ def drawArc():
     global  globalX,  globalY, globalZ, globalI, globalJ, prevX, prevY
     #print("globalX: %f,  globalY:%f, globalZ:%f, globalI:%f, globalJ:%f, prevX:%f, prevY:%f") % (globalX,  globalY, globalZ, globalI, globalJ, prevX, prevY)
     center = [prevX + globalI, prevY+globalJ]
-    radius = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
+    radius = calcDistance(globalX, globalY, globalZ, center[0], center[1], prevZ)
     (angle, length) = law_of_cosines(center[0], center[1], globalX, globalY, prevX, prevY)
     #print("The Arc length is %f") % a
     #Slope is just really globalJ/globalY
@@ -276,13 +276,14 @@ def parseFile(fileName):
         count      = 0
         add        = ''
         prevTool   = 19
-        fig, ax = plt.subplots()
+        #format: ( (x1, y1, z1), (x2, y2, z2), radius)
+        arcs       = []
+        #format: ( (x1, y1, z1), (x2, y2, z2))
+        lines      = []
         for line in file:
             lineNum += 1
             gcode = line.upper().split()
             parseLine(gcode)
-            if( lineNum == 20):
-                print("\n\nTrying to match the z thing.\n\n")
             print("%d. Line: %s\n") % (lineNum, gcode)
             print("FeedRate: %d\t Spindle Speed: %d\t Tool Number:%d MovementType: %s\n") % (feedRate, spindleSpeed, toolNum, movementType)
             print("(%f,%f) (I,J)\n") %(globalI, globalJ)
@@ -292,27 +293,18 @@ def parseFile(fileName):
             if(movementType == 'G02' or movementType == 'G2'):
                 center, radius, angle, length = drawArc()
                 distance = length
-                arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='green')
+                arcs.append(((globalX,globalY,globalZ),(prevX,prevY,prevZ),radius))
             elif(movementType == 'G03' or movementType == 'G3'):
                 center, radius, angle, length = drawArc()
                 distance = length
-                arc1 = mpatches.Arc(center, math.fabs(prevX-globalX), math.fabs(prevY-globalY), math.degrees(angle), 90, 180, color='pink')
-                ax.add_patch(arc1)
-                #arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='yellow')
-                #arc_patch(center, radius, 0, 0, ax=ax, color='blue')
+                arcs.append(((prevX,prevY,prevZ),(globalX, globalY, globalZ), radius))
             elif(movementType == 'G00' or movementType == 'G0'):
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
-                line1 = [(prevX, prevY), (globalX, globalY)]
-                (line1_xs, line1_ys) = zip(*line1)
-                ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
+                lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
                 local_feed = rapid
             else:
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
-                line1 = [(prevX, prevY), (globalX, globalY)]
-                (line1_xs, line1_ys) = zip(*line1)
-                ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='red'))
-                #line = plt.Line2D((globalX, globalY), (prevX, prevY), lw=2.5)
-                #plt.gca().add_line(line)
+                lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
             if(prevTool != toolNum):
                 total_time += toolChangeTime
                 prevTool    = toolNum
@@ -326,9 +318,18 @@ def parseFile(fileName):
 
 
         print("Total Time: %f") % total_time
-        plt.autoscale(True, True, True)
-        plt.axis('scaled')
-        plt.show()
+        print("Arcs:")
+        for p in arcs:
+            s, e, r      = p
+            (x1, y1, z1) = s
+            (x2, y2, z2) = e
+            print("Start: (%f, %f, %f)\t\t|\t\t End:(%f, %f, %f)\t\t|\t\tRadius:%f") % (x1, y1, z1, x2, y2, z2, r)
+        print("Lines:")
+        for w in lines:
+            s, e = w
+            (x1, y1, z1) = s
+            (x2, y2, z2) = e
+            print("Start: (%f, %f, %f)\t\t|\t\t End:(%f, %f, %f)") % (x1, y1, z1, x2, y2, z2)
             #CCW Arc: I,J are centerpoints, globalX, globalY are endpoints
 parseFile(str(sys.argv[1]))
 
