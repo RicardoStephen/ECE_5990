@@ -5,21 +5,26 @@
 #
 
 
-import sys, fileinput, math, re, turtle
-
-prevX        = float(0.0)
-prevY        = float(0.0)
-prevZ        = float(0.0)
-globalX      = float(0.0)
-globalY      = float(0.0)
-globalZ      = float(0.0)
-globalI      = float(0.0)
-globalJ      = float(0.0)
-feedRate     = 0
-spindleSpeed = 0
-toolNum      = 0
-toolSize     = 0
-rapid        = 100
+import sys, fileinput, math, re
+# -*- coding: utf-8 -*-
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib import cm, colors, patches
+prevX          = float(0.0)
+prevY          = float(0.0)
+prevZ          = float(0.0)
+globalX        = float(0.0)
+globalY        = float(0.0)
+globalZ        = float(0.0)
+globalI        = float(0.0)
+globalJ        = float(0.0)
+feedRate       = 0
+spindleSpeed   = 0
+toolNum        = 19
+toolSize       = 0
+rapid          = 100
+toolChangeTime = 5/60
 def parseM(line, index):
     index += 1
     return index
@@ -198,13 +203,16 @@ def parseLine(line):
 plot_scale = 1
 
 def calc_line(x1, y1, x2, y2):
-    slope = (y2-y1)/(x2-x1)
+    if(x2 - x1 == 0):
+        slope = float("inf")
+    else:
+        slope = (y2-y1)/(x2-x1)
     intercept = y2 - slope*x2
     return (slope, intercept)
 #returns the distance between point 1 and point 2
-def calcDistance(x1, y1, x2, y2):
+def calcDistance(x1, y1, z1, x2, y2, z2):
     global plot_scale
-    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
+    return math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
     #return math.hypot(plot_scale*(x2 - x1),plot_scale*(y2 - y1))
 def calcTime(distance, feedRate):
     if(feedRate == 0):
@@ -224,9 +232,10 @@ def point_over(point, line):
         return point[0] > intercept
 def law_of_cosines(A_X, A_Y, B_X, B_Y, C_X, C_Y):
     print("A: (%f,%f)\tB: (%f,%f)\tC: (%f,%f)") % (A_X, A_Y, B_X, B_Y, C_X, C_Y)
-    a = calcDistance(B_X, B_Y, C_X, C_Y)
-    b = calcDistance(A_X, A_Y, C_X, C_Y)
-    c = calcDistance(A_X, A_Y, B_X, B_Y)
+    #CNC doesn't do 3D arcs
+    a = calcDistance(B_X, B_Y, 0, C_X, C_Y, 0)
+    b = calcDistance(A_X, A_Y, 0, C_X, C_Y, 0)
+    c = calcDistance(A_X, A_Y, 0, B_X, B_Y, 0)
     #return cosine^-1(b^2+c^2-a^2/(2bc))
     print("A: %f B: %f C:%f") %(a,b,c)
     angle = math.acos((b*b+ b*b - a*a)/(2*b*b))
@@ -234,14 +243,28 @@ def law_of_cosines(A_X, A_Y, B_X, B_Y, C_X, C_Y):
         print("The point is over the line!!!!!!!\n\n")
         angle = 2*math.pi-angle
     #print("The Angle returned is: %f") %(angle)
-    return angle*b
+    return (angle,angle*b)
 def drawArc():
     global  globalX,  globalY, globalZ, globalI, globalJ, prevX, prevY
     #print("globalX: %f,  globalY:%f, globalZ:%f, globalI:%f, globalJ:%f, prevX:%f, prevY:%f") % (globalX,  globalY, globalZ, globalI, globalJ, prevX, prevY)
-    a = law_of_cosines(prevX + globalI, prevY + globalJ, globalX, globalY, prevX, prevY)
+    center = [prevX + globalI, prevY+globalJ]
+    radius = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
+    (angle, length) = law_of_cosines(center[0], center[1], globalX, globalY, prevX, prevY)
     #print("The Arc length is %f") % a
     #Slope is just really globalJ/globalY
-    return a
+    return (center, radius, angle, length)
+def arc_patch(center, radius, theta1, theta2, ax=None, resolution=50, **kwargs):
+    # make sure ax is not empty
+    if ax is None:
+        ax = plt.gca()
+    # generate the points
+    theta = np.linspace(np.radians(theta1), np.radians(theta2), resolution)
+    points = np.vstack((radius*np.cos(theta) + center[0],
+                        radius*np.sin(theta) + center[1]))
+    # build the polygon and add it to the axes
+    poly = mpatches.Polygon(points.T, closed=True, **kwargs)
+    ax.add_patch(poly)
+    return poly
 def parseFile(fileName):
     with open(fileName) as file:
         global plot_scale
@@ -252,6 +275,8 @@ def parseFile(fileName):
         text       = ''
         count      = 0
         add        = ''
+        prevTool   = 19
+        fig, ax = plt.subplots()
         for line in file:
             lineNum += 1
             gcode = line.upper().split()
@@ -265,23 +290,46 @@ def parseFile(fileName):
             time = 0
             local_feed = feedRate
             if(movementType == 'G02' or movementType == 'G2'):
-                distance = drawArc()
+                center, radius, angle, length = drawArc()
+                distance = length
+                arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='green')
             elif(movementType == 'G03' or movementType == 'G3'):
-                distance = drawArc()
+                center, radius, angle, length = drawArc()
+                distance = length
+                arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='yellow')
+                #arc_patch(center, radius, 0, 0, ax=ax, color='blue')
             elif(movementType == 'G00' or movementType == 'G0'):
-                distance = calcDistance(globalX, globalY, prevX, prevY)
+                distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
+                line1 = [(prevX, prevY), (globalX, globalY)]
+                (line1_xs, line1_ys) = zip(*line1)
+                ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
                 local_feed = rapid
             else:
-                distance = calcDistance(globalX, globalY, prevX, prevY)
-            time     = calcTime(distance, local_feed)
+                distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
+                line1 = [(prevX, prevY), (globalX, globalY)]
+                (line1_xs, line1_ys) = zip(*line1)
+                ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='red'))
+                #line = plt.Line2D((globalX, globalY), (prevX, prevY), lw=2.5)
+                #plt.gca().add_line(line)
+            if(prevTool != toolNum):
+                total_time += toolChangeTime
+                prevTool    = toolNum
+            time  = calcTime(distance, local_feed)
             print("Distance: %f Time: %f") % (distance, time)
-            total_time += calcTime(distance, feedRate)
+            total_time += time
             prevX = globalX
             prevY = globalY
             prevZ = globalZ
-            print("Total Time: %f") % total_time
+
+
+
+        print("Total Time: %f") % total_time
+        plt.autoscale(True, True, True)
+        plt.axis('scaled')
+        plt.show()
             #CCW Arc: I,J are centerpoints, globalX, globalY are endpoints
 parseFile(str(sys.argv[1]))
+
 #turtle.done()
 
 
