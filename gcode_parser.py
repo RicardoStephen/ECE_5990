@@ -19,6 +19,7 @@ feedRate     = 0
 spindleSpeed = 0
 toolNum      = 0
 toolSize     = 0
+rapid        = 100
 def parseM(line, index):
     index += 1
     return index
@@ -194,29 +195,63 @@ def parseLine(line):
             i = validGCmds[movementType](line,i)
         else:
             i += 1
-plot_scale = 100
+plot_scale = 1
+
+def calc_line(x1, y1, x2, y2):
+    slope = (y2-y1)/(x2-x1)
+    intercept = y2 - slope*x2
+    return (slope, intercept)
 #returns the distance between point 1 and point 2
 def calcDistance(x1, y1, x2, y2):
     global plot_scale
-    return math.hypot(plot_scale*(x2 - x1),plot_scale*(y2 - y1))
-def calcExtent(pt1, pt2):
-    radius
-def drawArc(dir):
-    radius = calcDistance(globalX, globalY, globalI, globalJ)
-    print("Radius is: %d. Stating points are: %d,%d. End points are: %d, %d") % (radius, prevX, prevY, globalX, globalY)
-    distancePoints = calcDistance(prevX, prevY, globalX, globalY)
-    a = math.degrees(math.acos((2*(radius**2) - distancePoints**2)/(2*(radius**2))))
-    if(dir == 1):
-        turtle.circle(radius, a, 10)
+    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
+    #return math.hypot(plot_scale*(x2 - x1),plot_scale*(y2 - y1))
+def calcTime(distance, feedRate):
+    if(feedRate == 0):
+        return 0
+    return distance/feedRate
+def point_under(point, line):
+    slope, intercept = line
+    if(slope != float("inf")):
+        return point[0]*slope + intercept > point[1]
     else:
-        turtle.circle(radius, -a, 10)
+        return point[0] < intercept
+def point_over(point, line):
+    slope, intercept = line
+    if(slope != float("inf")):
+        return point[0]*slope + intercept < point[1]
+    else:
+        return point[0] > intercept
+def law_of_cosines(A_X, A_Y, B_X, B_Y, C_X, C_Y):
+    print("A: (%f,%f)\tB: (%f,%f)\tC: (%f,%f)") % (A_X, A_Y, B_X, B_Y, C_X, C_Y)
+    a = calcDistance(B_X, B_Y, C_X, C_Y)
+    b = calcDistance(A_X, A_Y, C_X, C_Y)
+    c = calcDistance(A_X, A_Y, B_X, B_Y)
+    #return cosine^-1(b^2+c^2-a^2/(2bc))
+    print("A: %f B: %f C:%f") %(a,b,c)
+    angle = math.acos((b*b+ b*b - a*a)/(2*b*b))
+    if(point_over([B_X, B_Y], calc_line(C_X, C_Y, A_X, A_Y))):
+        print("The point is over the line!!!!!!!\n\n")
+        angle = 2*math.pi-angle
+    #print("The Angle returned is: %f") %(angle)
+    return angle*b
+def drawArc():
+    global  globalX,  globalY, globalZ, globalI, globalJ, prevX, prevY
+    #print("globalX: %f,  globalY:%f, globalZ:%f, globalI:%f, globalJ:%f, prevX:%f, prevY:%f") % (globalX,  globalY, globalZ, globalI, globalJ, prevX, prevY)
+    a = law_of_cosines(prevX + globalI, prevY + globalJ, globalX, globalY, prevX, prevY)
+    #print("The Arc length is %f") % a
+    #Slope is just really globalJ/globalY
+    return a
 def parseFile(fileName):
     with open(fileName) as file:
         global plot_scale
-        lineNum = 0
-        text=''
-        count=0
-        add=''
+        global  globalX,  globalY, globalZ, globalI, globalJ, feedRate, spindleSpeed, toolNum, toolSize, rapid
+        global prevX, prevY, prevZ
+        total_time = 0
+        lineNum    = 0
+        text       = ''
+        count      = 0
+        add        = ''
         for line in file:
             lineNum += 1
             gcode = line.upper().split()
@@ -227,15 +262,25 @@ def parseFile(fileName):
             print("FeedRate: %d\t Spindle Speed: %d\t Tool Number:%d MovementType: %s\n") % (feedRate, spindleSpeed, toolNum, movementType)
             print("(%f,%f) (I,J)\n") %(globalI, globalJ)
             print("Location: (%f,%f,%f)\n") % (globalX, globalY, globalZ)
-            #CCW Arc: I,J are centerpoints, globalX, globalY are endpoints
-            '''
+            time = 0
+            local_feed = feedRate
             if(movementType == 'G02' or movementType == 'G2'):
-                #drawArc(1)
+                distance = drawArc()
             elif(movementType == 'G03' or movementType == 'G3'):
-                #drawArc(0)
+                distance = drawArc()
+            elif(movementType == 'G00' or movementType == 'G0'):
+                distance = calcDistance(globalX, globalY, prevX, prevY)
+                local_feed = rapid
             else:
-                #turtle.goto(plot_scale*globalX, plot_scale*globalY)
-            '''
+                distance = calcDistance(globalX, globalY, prevX, prevY)
+            time     = calcTime(distance, local_feed)
+            print("Distance: %f Time: %f") % (distance, time)
+            total_time += calcTime(distance, feedRate)
+            prevX = globalX
+            prevY = globalY
+            prevZ = globalZ
+            print("Total Time: %f") % total_time
+            #CCW Arc: I,J are centerpoints, globalX, globalY are endpoints
 parseFile(str(sys.argv[1]))
 #turtle.done()
 
