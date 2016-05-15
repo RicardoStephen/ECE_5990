@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 # http://stackoverflow.com/questions/10733903/pyaudio-input-overflowed
 
@@ -19,27 +19,25 @@ wf.setnchannels(CHANNELS)
 wf.setsampwidth(2)
 wf.setframerate(RATE)
 
-count = 5
+end_signal = 0
 
 def callback(in_data, frame_count, time_info, status):
-    global count
-    print(count)
-    count = count - 1
-    print("callback")
+    global end_signal
+    print("Callback")
     wf.writeframes(in_data)
-    if (count == 0):
+    if(end_signal == 1):
         wf.close()
-        return (None, pyaudio.paComplete)
+        exit()
     else:
-        return(None, pyaudio.paContinue)
+        return(in_data, pyaudio.paContinue)
 
 p=pyaudio.PyAudio()
-
 
 inStream = p.open(format = FORMAT,
                   channels=CHANNELS,
                   rate=RATE,
                   input=True,
+                  output=True,
                   frames_per_buffer=CHUNK,
                   stream_callback=callback)
 
@@ -47,39 +45,4 @@ while True:
     try:
         continue
     except KeyboardInterrupt:
-        wf.close()
-        exit()
-
-
-
-# def callback(in_data, frame_count, time_info, status):
-#     print "callback"
-#     audio = numpy.fromstring(in_data, dtype=numpy.int16)
-
-#     return (audio, pyaudio.paContinue)
-
-# p=pyaudio.PyAudio()
-
-
-# inStream = p.open(format = FORMAT,
-#                   channels=CHANNELS,
-#                   rate=RATE,
-#                   input=True,
-#                   frames_per_buffer=CHUNK,
-#                   stream_callback=callback)
-
-# audio = numpy.empty((RATE / CHUNK * RECORD_SECONDS), dtype="int16")
-# inStream.start_stream()
-
-# wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-# wf.setnchannels(CHANNELS)
-# wf.setsampwidth(p.get_sample_size(FORMAT))
-# wf.setframerate(RATE)
-# wf.writeframes(b''.join(frames))
-# wf.close()
-
-# while True:
-#     try:
-#         1 + 1
-#     except KeyboardInterrupt:
-#         self.in
+        end_signal = 1
