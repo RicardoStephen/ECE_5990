@@ -296,7 +296,9 @@ def parseFile(fileName):
             elif(movementType == 'G03' or movementType == 'G3'):
                 center, radius, angle, length = drawArc()
                 distance = length
-                arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='yellow')
+                arc1 = mpatches.Arc(center, math.fabs(prevX-globalX), math.fabs(prevY-globalY), math.degrees(angle), 90, 180, color='pink')
+                ax.add_patch(arc1)
+                #arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='yellow')
                 #arc_patch(center, radius, 0, 0, ax=ax, color='blue')
             elif(movementType == 'G00' or movementType == 'G0'):
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
