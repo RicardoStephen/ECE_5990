@@ -19,7 +19,7 @@ def plotSpectru(y,Fs):
  ylabel('|Y(freq)|')
 
 
-Fs,data=read('test2.wav')
+Fs,data=read('audio/test2.wav')
 
 y=data[:,1]
 lungime=len(y)

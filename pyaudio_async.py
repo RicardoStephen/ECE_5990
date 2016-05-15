@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # http://stackoverflow.com/questions/10733903/pyaudio-input-overflowed
 
 import pyaudio
@@ -7,7 +9,7 @@ import time
 CHUNK = 2**12
 FORMAT=pyaudio.paInt16
 CHANNELS = 1
-RATE = 2000
+RATE = 44100
 RECORD_SECONDS = 5
 TIMESTAMP = str(int(time.time()))
 WAVE_OUTPUT_FILENAME = "audio/async"+TIMESTAMP+".wav"
@@ -17,10 +19,19 @@ wf.setnchannels(CHANNELS)
 wf.setsampwidth(2)
 wf.setframerate(RATE)
 
+count = 5
+
 def callback(in_data, frame_count, time_info, status):
+    global count
+    print(count)
+    count = count - 1
     print("callback")
     wf.writeframes(in_data)
-    return(None, pyaudio.paContinue)
+    if (count == 0):
+        wf.close()
+        return (None, pyaudio.paComplete)
+    else:
+        return(None, pyaudio.paContinue)
 
 p=pyaudio.PyAudio()
 
