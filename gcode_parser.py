@@ -192,7 +192,7 @@ def parseLine(line):
     while( i < len(line)):
         #print("This is the index Value: %d\n") % i
         a = str(line[i][0]).split()[0]
-        print("a: %s\n") % a
+        #print("a: %s\n") % a
         if( a in validCmds):
             #print("Is a valid cmd: %s\n") % a
             i = validCmds[a](line,i)
@@ -231,16 +231,16 @@ def point_over(point, line):
     else:
         return point[0] > intercept
 def law_of_cosines(A_X, A_Y, B_X, B_Y, C_X, C_Y):
-    print("A: (%f,%f)\tB: (%f,%f)\tC: (%f,%f)") % (A_X, A_Y, B_X, B_Y, C_X, C_Y)
+    #print("A: (%f,%f)\tB: (%f,%f)\tC: (%f,%f)") % (A_X, A_Y, B_X, B_Y, C_X, C_Y)
     #CNC doesn't do 3D arcs
     a = calcDistance(B_X, B_Y, 0, C_X, C_Y, 0)
     b = calcDistance(A_X, A_Y, 0, C_X, C_Y, 0)
     c = calcDistance(A_X, A_Y, 0, B_X, B_Y, 0)
     #return cosine^-1(b^2+c^2-a^2/(2bc))
-    print("A: %f B: %f C:%f") %(a,b,c)
+    #print("A: %f B: %f C:%f") %(a,b,c)
     angle = math.acos((b*b+ b*b - a*a)/(2*b*b))
     if(point_over([B_X, B_Y], calc_line(C_X, C_Y, A_X, A_Y))):
-        print("The point is over the line!!!!!!!\n\n")
+        #print("The point is over the line!!!!!!!\n\n")
         angle = 2*math.pi-angle
     #print("The Angle returned is: %f") %(angle)
     return (angle,angle*b)
@@ -280,36 +280,46 @@ def parseFile(fileName):
         arcs       = []
         #format: ( (x1, y1, z1), (x2, y2, z2))
         lines      = []
+        fig, ax = plt.subplots()
         for line in file:
             lineNum += 1
             gcode = line.upper().split()
             parseLine(gcode)
-            print("%d. Line: %s\n") % (lineNum, gcode)
-            print("FeedRate: %d\t Spindle Speed: %d\t Tool Number:%d MovementType: %s\n") % (feedRate, spindleSpeed, toolNum, movementType)
-            print("(%f,%f) (I,J)\n") %(globalI, globalJ)
-            print("Location: (%f,%f,%f)\n") % (globalX, globalY, globalZ)
+            #print("%d. Line: %s\n") % (lineNum, gcode)
+            #print("FeedRate: %d\t Spindle Speed: %d\t Tool Number:%d MovementType: %s\n") % (feedRate, spindleSpeed, toolNum, movementType)
+            #print("(%f,%f) (I,J)\n") %(globalI, globalJ)
+            #print("Location: (%f,%f,%f)\n") % (globalX, globalY, globalZ)
             time = 0
             local_feed = feedRate
             if(movementType == 'G02' or movementType == 'G2'):
                 center, radius, angle, length = drawArc()
                 distance = length
                 arcs.append(((globalX,globalY,globalZ),(prevX,prevY,prevZ),radius))
+                #arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='green')
             elif(movementType == 'G03' or movementType == 'G3'):
                 center, radius, angle, length = drawArc()
                 distance = length
                 arcs.append(((prevX,prevY,prevZ),(globalX, globalY, globalZ), radius))
+                #arc1 = mpatches.Arc(center, math.fabs(prevX-globalX), math.fabs(prevY-globalY), math.degrees(angle), 90, 180, color='pink')
+                #ax.add_patch(arc1)
             elif(movementType == 'G00' or movementType == 'G0'):
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
                 lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
                 local_feed = rapid
+                line1 = [(prevX, prevY), (globalX, globalY)]
+                (line1_xs, line1_ys) = zip(*line1)
+                ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
             else:
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
                 lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
+                line1 = [(prevX, prevY), (globalX, globalY)]
+                (line1_xs, line1_ys) = zip(*line1)
+                ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
             if(prevTool != toolNum):
                 total_time += toolChangeTime
                 prevTool    = toolNum
             time  = calcTime(distance, local_feed)
-            print("Distance: %f Time: %f") % (distance, time)
+            #print("Distance: %f Time: %f") % (distance, time)
             total_time += time
             prevX = globalX
             prevY = globalY
@@ -317,8 +327,9 @@ def parseFile(fileName):
 
 
 
-        print("Total Time: %f") % total_time
-        print("Arcs:")
+        #print("Total Time: %f") % total_time
+        #print("Arcs:")
+        '''
         for p in arcs:
             s, e, r      = p
             (x1, y1, z1) = s
@@ -330,6 +341,10 @@ def parseFile(fileName):
             (x1, y1, z1) = s
             (x2, y2, z2) = e
             print("Start: (%f, %f, %f)\t\t|\t\t End:(%f, %f, %f)") % (x1, y1, z1, x2, y2, z2)
+        '''
+        plt.autoscale(True, True, True)
+        plt.axis('scaled')
+        plt.show()
             #CCW Arc: I,J are centerpoints, globalX, globalY are endpoints
 parseFile(str(sys.argv[1]))
 
