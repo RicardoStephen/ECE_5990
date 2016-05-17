@@ -8,6 +8,7 @@
 import sys, fileinput, math, re
 # -*- coding: utf-8 -*-
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import mpl_toolkits.mplot3d.axes3d as p3
@@ -189,7 +190,7 @@ validMCmds      = {  'M03':parseM3, 'M3': parseM3,
 #Sticks with whatever the last movement type was
 #So if the last command to specify movement was g1
 #Then an X____Y____ will really mean: G1 X______Y_____
-movementType = 'G00'
+movementType = ''
 
 def parseLine(line):
     i = 0
@@ -269,6 +270,25 @@ def arc_patch(center, radius, theta1, theta2, ax=None, resolution=50, **kwargs):
     poly = mpatches.Polygon(points.T, closed=True, **kwargs)
     ax.add_patch(poly)
     return poly
+
+def Gen_Line(s, e):
+    (x1, y1, z1) = s
+    (x2, y2, z2) = e
+    length = 50.0
+    stepx = (x2-x1)/(length-1)
+    stepy = (y2-y1)/(length-1)
+    stepz = (z2-z1)/(length-1)
+    lineData = np.empty((3, int(length)))
+    for index in xrange(int(length)):
+        lineData[:, index] = (x1+index*stepx, y1+index*stepy, z1+index*stepz)
+    return lineData
+
+def update_lines(num, dataLines, lines):
+    for line, data in zip(lines, dataLines):
+        # NOTE: there is no .set_data() for 3 dim data...
+        line.set_data(data[0:2, :num])
+        line.set_3d_properties(data[2, :num])
+    return lines
 def parseFile(fileName):
     with open(fileName) as file:
         global plot_scale
@@ -280,29 +300,36 @@ def parseFile(fileName):
         count      = 0
         add        = ''
         prevTool   = 19
+        first_time = 1
         #format: ( (x1, y1, z1), (x2, y2, z2), radius)
         arcs       = []
         #format: ( (x1, y1, z1), (x2, y2, z2))
         lines      = []
-        fig, ax = plt.subplots()
+        # Attaching 3D axis to the figure
+        fig = plt.figure()
+        ax = p3.Axes3D(fig)
+        #line_ani = animation.FuncAnimation(fig, update_lines, 25, fargs=(data, lines),
+         #                          interval=50, blit=False)
+        #background = fig.canvas.copy_from_bbox(ax.bbox)
         for line in file:
-            lineNum += 1
-            gcode = line.upper().split()
+            lineNum  += 1
+            gcode     = line.upper().split()
             parseLine(gcode)
             #print("%d. Line: %s\n") % (lineNum, gcode)
             #print("FeedRate: %d\t Spindle Speed: %d\t Tool Number:%d MovementType: %s\n") % (feedRate, spindleSpeed, toolNum, movementType)
             #print("(%f,%f) (I,J)\n") %(globalI, globalJ)
             #print("Location: (%f,%f,%f)\n") % (globalX, globalY, globalZ)
-            time = 0
+            time       = 0
             local_feed = feedRate
+            distance   = 0
             if(movementType == 'G02' or movementType == 'G2'):
                 center, radius, angle, length = drawArc()
-                distance = length
+                distance                      = length
                 arcs.append(((globalX,globalY,globalZ),(prevX,prevY,prevZ),radius))
                 #arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='green')
             elif(movementType == 'G03' or movementType == 'G3'):
                 center, radius, angle, length = drawArc()
-                distance = length
+                distance                      = length
                 arcs.append(((prevX,prevY,prevZ),(globalX, globalY, globalZ), radius))
                 #arc1 = mpatches.Arc(center, math.fabs(prevX-globalX), math.fabs(prevY-globalY), math.degrees(angle), 90, 180, color='pink')
                 #ax.add_patch(arc1)
@@ -312,13 +339,24 @@ def parseFile(fileName):
                 local_feed = rapid
                 line1 = [(prevX, prevY), (globalX, globalY)]
                 (line1_xs, line1_ys) = zip(*line1)
-                ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
-            else:
+                #ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
+                #fig.canvas.restore_region(background)
+                if(first_time == 0):
+                    ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
+                else:
+                    first_time -= 1
+                # fill in the axes rectangle
+                #fig.canvas.blit(ax.bbox)
+            elif(movementType == 'G01' or movementType == 'G1'):
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
                 lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
                 line1 = [(prevX, prevY), (globalX, globalY)]
                 (line1_xs, line1_ys) = zip(*line1)
-                ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
+                if(first_time == 0):
+                    ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
+                else:
+                    first_time -= 1
+                #ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
             if(prevTool != toolNum):
                 total_time += toolChangeTime
                 prevTool    = toolNum
@@ -328,34 +366,17 @@ def parseFile(fileName):
             prevX = globalX
             prevY = globalY
             prevZ = globalZ
+            #plt.draw()
+            #plt.pause(0.0001)
+            #plt.show()
 
-        def Gen_Line(s, e):
-            (x1, y1, z1) = s
-            (x2, y2, z2) = e
-            length = 50.0
-            stepx = (x2-x1)/(length-1)
-            stepy = (y2-y1)/(length-1)
-            stepz = (z2-z1)/(length-1)
-            lineData = np.empty((3, int(length)))
-            for index in xrange(int(length)):
-                lineData[:, index] = (x1+index*stepx, y1+index*stepy, z1+index*stepz)
-            return lineData
 
-        def update_lines(num, dataLines, lines):
-            for line, data in zip(lines, dataLines):
-                # NOTE: there is no .set_data() for 3 dim data...
-                line.set_data(data[0:2, :num])
-                line.set_3d_properties(data[2, :num])
-            return lines
 
-        fig = plt.figure()
-        ax = p3.Axes3D(fig)
-
-        line_collection = [Gen_Line(s,e) for s,e in lines]
+        #line_collection = [Gen_Line(s,e) for s,e in lines]
 
         # Creating fifty line objects.
         # NOTE: Can't pass empty arrays into 3d version of plot()
-        lines2 = [ax.plot(dat[0, 0:1], dat[1, 0:1], dat[2, 0:1])[0] for dat in line_collection]
+        #lines2 = [ax.plot(dat[0, 0:1], dat[1, 0:1], dat[2, 0:1])[0] for dat in line_collection]
         # ax.set_xlim3d([0.0, 1.0])
         ax.set_xlabel('X')
         # ax.set_ylim3d([0.0, 1.0])
@@ -364,9 +385,10 @@ def parseFile(fileName):
         ax.set_zlabel('Z')
         ax.set_title('3D Test')
 
-        line_animation = animation.FuncAnimation(fig, update_lines, 25, fargs=(line_collection, lines2), interval=50, blit=False, repeat=False)
+        #line_animation = animation.FuncAnimation(fig, update_lines, 25, fargs=(line_collection, lines2), interval=50, blit=False, repeat = False)
 
         plt.show()
+        #plt.pause(0.0001)
 
 
 
@@ -399,6 +421,7 @@ def parseFile(fileName):
         # plt.axis('scaled')
         # plt.show()
             #CCW Arc: I,J are centerpoints, globalX, globalY are endpoints
+#matplotlib.interactive(True)
 parseFile(str(sys.argv[1]))
 
 #turtle.done()
