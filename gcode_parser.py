@@ -364,7 +364,7 @@ def parseFile(fileName):
         ax.set_zlabel('Z')
         ax.set_title('3D Test')
 
-        line_animation = animation.FuncAnimation(fig, update_lines, 25, fargs=(line_collection, lines2), interval=50, blit=False)
+        line_animation = animation.FuncAnimation(fig, update_lines, 25, fargs=(line_collection, lines2), interval=50, blit=False, repeat=False)
 
         plt.show()
 
