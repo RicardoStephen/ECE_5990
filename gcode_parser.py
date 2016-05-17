@@ -10,6 +10,7 @@ import sys, fileinput, math, re
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
 from matplotlib import cm, colors, patches
 
@@ -329,6 +330,8 @@ def parseFile(fileName):
             prevZ = globalZ
 
         def Gen_Line(s, e):
+            (x1, y1, z1) = s
+            (x2, y2, z2) = e
             length = 50.0
             stepx = (x2-x1)/(length-1)
             stepy = (y2-y1)/(length-1)
@@ -352,7 +355,7 @@ def parseFile(fileName):
 
         # Creating fifty line objects.
         # NOTE: Can't pass empty arrays into 3d version of plot()
-        lines = [ax.plot(dat[0, 0:1], dat[1, 0:1], dat[2, 0:1])[0] for dat in line_collection]
+        lines2 = [ax.plot(dat[0, 0:1], dat[1, 0:1], dat[2, 0:1])[0] for dat in line_collection]
         # ax.set_xlim3d([0.0, 1.0])
         ax.set_xlabel('X')
         # ax.set_ylim3d([0.0, 1.0])
@@ -361,7 +364,7 @@ def parseFile(fileName):
         ax.set_zlabel('Z')
         ax.set_title('3D Test')
 
-        line_ani = animation.FunctionAnimation(fig, update_lines, 25, fargs=(data, lines), interval=50, blit=False)
+        line_animation = animation.FuncAnimation(fig, update_lines, 25, fargs=(line_collection, lines2), interval=50, blit=False)
 
         plt.show()
 
