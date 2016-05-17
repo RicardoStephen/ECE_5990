@@ -300,6 +300,7 @@ def parseFile(fileName):
         count      = 0
         add        = ''
         prevTool   = 19
+        first_time = 1
         #format: ( (x1, y1, z1), (x2, y2, z2), radius)
         arcs       = []
         #format: ( (x1, y1, z1), (x2, y2, z2))
@@ -320,40 +321,42 @@ def parseFile(fileName):
             #print("Location: (%f,%f,%f)\n") % (globalX, globalY, globalZ)
             time = 0
             local_feed = feedRate
-            if(movementType == 'G02' or movementType == 'G2'):
-                center, radius, angle, length = drawArc()
-                distance = length
-                arcs.append(((globalX,globalY,globalZ),(prevX,prevY,prevZ),radius))
-                #arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='green')
-            elif(movementType == 'G03' or movementType == 'G3'):
-                center, radius, angle, length = drawArc()
-                distance = length
-                arcs.append(((prevX,prevY,prevZ),(globalX, globalY, globalZ), radius))
-                #arc1 = mpatches.Arc(center, math.fabs(prevX-globalX), math.fabs(prevY-globalY), math.degrees(angle), 90, 180, color='pink')
-                #ax.add_patch(arc1)
-            elif(movementType == 'G00' or movementType == 'G0'):
-                distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
-                lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
-                local_feed = rapid
-                line1 = [(prevX, prevY), (globalX, globalY)]
-                (line1_xs, line1_ys) = zip(*line1)
-                #ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
-                #fig.canvas.restore_region(background)
-                #ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
-                # fill in the axes rectangle
-                #fig.canvas.blit(ax.bbox)
-            else:
-                distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
-                lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
-                line1 = [(prevX, prevY), (globalX, globalY)]
-                (line1_xs, line1_ys) = zip(*line1)
-                #ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
-                #ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
-            if(prevTool != toolNum):
-                total_time += toolChangeTime
-                prevTool    = toolNum
-            time  = calcTime(distance, local_feed)
+            if(first_time == 0):
+                if(movementType == 'G02' or movementType == 'G2'):
+                    center, radius, angle, length = drawArc()
+                    distance = length
+                    arcs.append(((globalX,globalY,globalZ),(prevX,prevY,prevZ),radius))
+                    #arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='green')
+                elif(movementType == 'G03' or movementType == 'G3'):
+                    center, radius, angle, length = drawArc()
+                    distance = length
+                    arcs.append(((prevX,prevY,prevZ),(globalX, globalY, globalZ), radius))
+                    #arc1 = mpatches.Arc(center, math.fabs(prevX-globalX), math.fabs(prevY-globalY), math.degrees(angle), 90, 180, color='pink')
+                    #ax.add_patch(arc1)
+                elif(movementType == 'G00' or movementType == 'G0'):
+                    distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
+                    lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
+                    local_feed = rapid
+                    line1 = [(prevX, prevY), (globalX, globalY)]
+                    (line1_xs, line1_ys) = zip(*line1)
+                    #ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
+                    #fig.canvas.restore_region(background)
+                    ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
+                    # fill in the axes rectangle
+                    #fig.canvas.blit(ax.bbox)
+                else:
+                    distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
+                    lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
+                    line1 = [(prevX, prevY), (globalX, globalY)]
+                    (line1_xs, line1_ys) = zip(*line1)
+                    ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
+                    #ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
+                if(prevTool != toolNum):
+                    total_time += toolChangeTime
+                    prevTool    = toolNum
+                time  = calcTime(distance, local_feed)
             #print("Distance: %f Time: %f") % (distance, time)
+            first_time = 0
             total_time += time
             prevX = globalX
             prevY = globalY
@@ -364,11 +367,11 @@ def parseFile(fileName):
 
 
 
-        line_collection = [Gen_Line(s,e) for s,e in lines]
+        #line_collection = [Gen_Line(s,e) for s,e in lines]
 
         # Creating fifty line objects.
         # NOTE: Can't pass empty arrays into 3d version of plot()
-        lines2 = [ax.plot(dat[0, 0:1], dat[1, 0:1], dat[2, 0:1])[0] for dat in line_collection]
+        #lines2 = [ax.plot(dat[0, 0:1], dat[1, 0:1], dat[2, 0:1])[0] for dat in line_collection]
         # ax.set_xlim3d([0.0, 1.0])
         ax.set_xlabel('X')
         # ax.set_ylim3d([0.0, 1.0])
@@ -377,7 +380,7 @@ def parseFile(fileName):
         ax.set_zlabel('Z')
         ax.set_title('3D Test')
 
-        line_animation = animation.FuncAnimation(fig, update_lines, 25, fargs=(line_collection, lines2), interval=50, blit=False, repeat = False)
+        #line_animation = animation.FuncAnimation(fig, update_lines, 25, fargs=(line_collection, lines2), interval=50, blit=False, repeat = False)
 
         plt.show()
         #plt.pause(0.0001)
