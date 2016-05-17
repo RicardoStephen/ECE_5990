@@ -81,5 +81,16 @@ p.enlarge span { color: #000 }
 
 #inner	{
 	-webkit-box-shadow: 0 0 3px 2px #ccc;
-    -moz-box-shadow: 0 0 3px 2px #ccc;
+    -moz-box-shadow: 0 0 3px 2px #ccc; 	
     box-shadow: 0 0 3px 2px #ccc;}
+.image_float {
+	margin: 10px 10px 10px 10px;
+	width: 100%;
+	height: 100%;
+}
+.image_div {
+	width:240px;
+    margin: 10px 10px 10px 10px;
+    padding: 15px;
+    text-align: center;
+}

@@ -41,8 +41,15 @@ ECE 5990 Lab Report
 								<h2>Introduction</h2> <!--// put your heading here -->
 							</div>
 							<div class="yui-u">
-								<p>Yo Iris. Check this out. It's on the internet
-								</p> <!--// Put Content here -->
+                            <img src="images/20160516_211446.jpg" style = "float:right; margin: 10px 10px 10px 10px;" alt="" width="40%" height="40%" title="The Okuma In All its Glory"/>
+							  <p>A computerized numerical controller or CNC machine is the backbone of a modern day machine shop.
+                             	
+                               A CNC is a computer controlled machine that can programmed to produce a specific part. These are useful in manufacturing when a large copies of a part are needed or when a part contains geometries that are impossible to make with a manual machine.</p>
+                             
+							  <p><br />
+							    These machines can range in price from $10k to over $1 million. One of the disparities between a “low end” CNC and a “top of the line” CNC is the accuracy at which it can make different parts. In order to insure the greatest accuracy and precision in part manufacturing, modern CNC’s rely on dynamic feedback from a variety of sensors. </p>
+                                
+							  <!--// Put Content here -->
 							</div>
 						</div><!--// Your section has ended -->
 
@@ -51,8 +58,9 @@ ECE 5990 Lab Report
 								<h2>Objective</h2> <!--// put your heading here -->
 							</div>
 							<div class="yui-u">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-								</p> <!--// Put Content here -->
+							  <p>The goal of this project is to develop a low-cost supplemental add on device to a CNC system to provide similar feedback control like a more expensive machine. This would allows smaller shops to produce higher quality parts, while avoiding the significant expense of upgrading machinery. The final result of this project would be to create a sub $100 easy to use device that can easily be integrated into the machine shop environment. <br />
+						      </p>
+							  <!--// Put Content here -->
 							</div>
 						</div><!--// Your section has ended -->
 
@@ -61,8 +69,35 @@ ECE 5990 Lab Report
 								<h2>Design</h2> <!--// put your heading here -->
 							</div>
 							<div class="yui-u">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-								</p> <!--// Put Content here -->
+							  <p><h2><strong>Machining Background </strong></h2></p>
+							  <p>&nbsp;</p>
+							  <p>In order to accomplish our goal of improving performance of “low end” CNC machines, we first had to quantify what we considered good performance. For the scope of this project, we determined that we consider high levels of chatter to be bad performance. Chatter occurs when the machine hits a self-excited level of vibration while machining a part. This can be detrimental to the surface finish of a part, tool life, and the operator's eardrums. There are many ways to reduce chatter, such as using a stiffer setup and better tools. However, these are parameters that our device cannot control so we sought out other ways to reduce chatter. Other methods of reducing chatter are modifying the feeds and speeds on the machine. The feedrate is defined by how fast the machine will move over the part. The spindle speed is how fast the tool is spinning. Both of these parameters can be set in software and presented an opening that we sought to exploit to reduce chatter. </p>
+							  <p><h2><strong>Hardware: (Ricardo can do this) </strong></h2></p>
+							  <p>We used an Okuma Cadet V OSP5020m for testing. This machine was available to use for Blue Apron Machinists in the Emerson Machine Shop in Rhodes Hall. Since one of the group members had extensive experience working with this machine, we were able to get access to experiment on the machine without any hiccups. Microphone RS232 Cables (Talk about the parameters) </p>
+							  <p><h2><strong>Software</strong></h2>&nbsp;</p>
+							  <p>Microphone and FFT </p>
+							  <p>Recompiling </p>
+							  <p><h2><strong>CNC Communication</strong></h2>&nbsp;<br />
+						      </p>
+							  <p>&nbsp;</p>
+                              <div class ="image_div" style="float:right">
+                             	<img class="image_float" src="images/20160516_212136.jpg" width="640" height="320" title="Pi in action" /><br />
+                                Yo will this work</div>
+							  <p>Our first milestone was figuring out how to communicate with the CNC via RS-232. Initially we used a computer to act as the go between for the CNC Computer and the CNC. We used 2 USB-&gt;RS232 adapters and plugged them into a laptop. One of the RS232 went to the computer, while the other went to the CNC. This allowed the computer to intercept all communication between the two other devices without the other devices knowing that it was even there.</p>
+							  <p>&nbsp;</p>
+							  <p> Initially the RS232 cables we had didn’t have the correct FTDI chips in them and would not work with the CNC. We got better RS232 cables that then were able to work. We were able to send a request of a program from the CNC, capture that transmission on the computer, and then forward that transmission to the CNC computer. The CNC computer then proceeded to dripfeed the GCode program via serial through our inserted computer, which passed it to the CNC. The CNC was actually able to receive the program and run properly. (Our hands were over the emergency stop on the machine the entire time this was happening.) The next step was to accomplish this with the Pi acting as the go-between, which we were able to quickly accomplish since it just involved plugging the Pi in. </p>
+							  <p>&nbsp;</p>
+							  <p><h2><strong>GCode Parsing <br />
+							    </strong></h2><br />
+							    An important part of our project was the parsing of GCode files to be run on the CNC. This would allow us to visualize what the machine was working on and allow us to map areas of high chatter to locations on the part. In order to accomplish this task, a GCode parser was written in python. The parser is designed to keep track of important global information like the current position, feedrate, tool number, and spindle speed.</p>
+							  <p>&nbsp;</p>
+							  <p><h2><strong>Plotting</strong></h2></p>
+							  <p>&nbsp;</p>
+							  <p>An important part of our project was generating a visual from the provided gcode. This allows the machinist to visualize areas that are prone to high noise. This also allows the visualization of how the noise profile changes as the part is machined.</p>
+							  <p>&nbsp;</p>
+							  <p>In order to create a plot of the part being machined, the GCode parser was leveraged as well as the MatPlotLib library for python. We were able to take the parameters maintained by the parser and use them to create 3D plots of the parts being machined. This was not as simple as it sounds because these GCode programs are so long that we would be plotting 40,000+ lines per program. This was an intense memory and CPU overhead for the Pi. This was something that required a lot of testing and tuning, because there are many different ways this library works and each of them provide different performance. We were able to eventually fine tune our approach and achieve 100x speedup in our plotting compared to when we started. Microphone and FFT Recompiling <br />
+						      </p>
+							  <!--// Put Content here -->
 							</div>
 						</div><!--// Your section has ended -->
 
@@ -71,20 +106,71 @@ ECE 5990 Lab Report
 								<h2>Testing</h2> <!--// put your heading here -->
 							</div>
 							<div class="yui-u">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-								</p> <!--// Put Content here -->
+							  <p><h2><strong>GCode Parser </strong></h2></p>
+							  <p>&nbsp;</p>
+							  <p>The parser was tested with various GCode programs provided by the Cornell Baja SAE and Resistance Racing: Cornell Electric Motorcycle project teams. These programs were considered good candidates because they were quite long (~50,000 lines) and were all parts that we had access to the CADs of to check our visualization against. <br />
+						      </p>
+							  <p>&nbsp;</p>
+							  <p><h2><strong>CNC Machine</strong></h2><br />
+						      </p>
+							  <p>&nbsp;</p>
+							  <p>The CNC machine posed a major problem while we were testing. An important part of our process was mapping noise levels received to a specific instruction. However, due to the way the CNC operates, there is no real way to know exactly which instruction is being executed at any point in time. This happens because the CNC machine buffers instructions so when the Pi would send an instruction, it doesn’t mean that the CNC is currently executing that instruction. This buffering helps the machine operate by making the transitions between instructions much smoother, but hurts the scope of our project.</p>
+							  <p>&nbsp;</p>
+							  <p>In order to get around this problem, we calculated the time it would take for each instruction to execute and attempted to map the time at which we experienced high noise to what instruction the Pi thought it was executing at that time. </p>
+							  <!--// Put Content here -->
 							</div>
 						</div><!--// Your section has ended -->
 
+						
 						<div class="yui-gf"> <!--// This is a section -->
 							<div class="yui-u first">
 								<h2>Drawings</h2> <!--// put your heading here -->
 							</div>
+							<div>
+							  <p>&nbsp;</p>
+							  <p><br />
+						      </p>
+							</div>
+                            <div style ="text-align: center">
+                            	<figure>
+                             	<img src="images/20160516_211446.jpg" alt="" width="640" height="320" title="The Okuma In All its Glory"/>
+                             	<figcaption>Fig1. - A view of the pulpit rock in Norway.</figcaption>
+                             	</figure> 
+                                
+                                <figure>
+                             	<img src="images/20160516_211435.jpg" alt="" width="640" height="320" title="Ricardo hard at work"/>
+                             	<figcaption>Fig3. - A view of the pulpit rock in Norway.</figcaption>
+                             	</figure> 
+                                <figure>
+                             	<img src="images/20160516_210720.jpg" alt="" width="640" height="320" title="Inside the Okuma"/>
+                             	<figcaption>Fig4. - A view of the pulpit rock in Norway.</figcaption>
+                             	</figure> 
+                                <figure>
+                             	<img src="images/FSPO2.png" alt="" width="400" height="200" class="float=&quot;left&quot;"/>
+                             	<figcaption>Fig5. - A view of the pulpit rock in Norway.</figcaption>
+                             	</figure> 
+                                 <figure>
+                             	 <img src="images/Rub2.png" width="400" height="200" alt=""/>
+                             	<figcaption>Fig6. - A view of the pulpit rock in Norway.</figcaption>
+                             	</figure> 
+                                <figure>
+                                <img src="images/LiteR2.png" width="400" height="200" alt=""/>
+                                <figcaption>Fig7. - A view of the pulpit rock in Norway.</figcaption>
+                             	</figure>
+							
+                            
+                           
+                           
+                           
+                           
+                            </div>
 							<div class="yui-u">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-								</p> <br /> <p> This is an example image  </p> <!--// Put Content here -->
-								<img src="images/incident.png" title="Ha Ha ... that's me" alt="This is a picture" width="420" height="200"/> </p>
-								<p> Credits to XKCD </p>
+							  <p>&nbsp;</p>
+							  <br />
+							  <p>&nbsp;</p>
+							  <!--// Put Content here -->
+							    </p>
+							  <p> Credits to XKCD </p>
 							</div>
 						</div><!--// Your section has ended -->
 
