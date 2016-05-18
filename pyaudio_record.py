@@ -1,7 +1,8 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python
 
 # http://stackoverflow.com/questions/10733903/pyaudio-input-overflowed
 
+import sys
 import pyaudio
 import wave
 import time
@@ -11,8 +12,7 @@ FORMAT=pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 RECORD_SECONDS = 5
-TIMESTAMP = str(int(time.time()))
-WAVE_OUTPUT_FILENAME = "audio/async"+TIMESTAMP+".wav"
+WAVE_OUTPUT_FILENAME = str(sys.argv[1])
 
 wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
 wf.setnchannels(CHANNELS)
