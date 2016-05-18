@@ -42,7 +42,7 @@ inStream = p.open(format = FORMAT,
                   channels=CHANNELS,
                   rate=RATE,
                   input=True,
-                  output = True
+                  output = True,
                   frames_per_buffer=CHUNK,
                   stream_callback=callback)
 # Send instructions to device
