@@ -4,7 +4,7 @@ import scipy.io
 import numpy as np
 import pylab
 
-fs,data=wavfile.read('audio/test2.wav')
+fs,data=wavfile.read(str(sys.argv[1]))
 channels = [np.array(data[:, 0]), np.array(data[:,1])]
 
 Pxx, f, t, plot = pylab.specgram(
@@ -16,11 +16,12 @@ Pxx, f, t, plot = pylab.specgram(
  noverlap=int(4096*0.5))
 plt.ylabel('Frequency [Hz]')
 plt.xlabel('Time [sec]')
+plt.title('Spectrogram of CNC Noise')
 plt.show()
 
 while True:
  try:
   continue
  except KeyboardInterrupt:
+  plt.close('all')
   exit()
-

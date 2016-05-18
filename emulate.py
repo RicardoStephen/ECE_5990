@@ -32,7 +32,7 @@ while flag:
     buff = dev_serial.read(num_chars)
     if(len(buff) > 0):
         print(buff)
-        infile = open(buff[buff.find("(")+1:buff.find(")")], 'wb')
+        infile = open('programs/'+buff[buff.find("(")+1:buff.find(")")], 'wb')
         dev_file.write(buff)
         flag = False
 

@@ -16,7 +16,7 @@ import time
 TIMESTAMP = str(int(time.time()))
 WAVE_OUTPUT_FILENAME = "audio/async_"+TIMESTAMP+".wav"
 DEV_FILENAME = 'log/connect_dev_'+TIMESTAMP+'.txt' # cnc computer
-HOST_FILENAME = 'lgo/connect_host_'+TIMESTAMP+'.txt' # cnc mill
+HOST_FILENAME = 'log/connect_host_'+TIMESTAMP+'.txt' # cnc mill
 DEV_NAME = '/dev/tty.usbserial-FT9AJZ83'
 HOST_NAME = '/dev/tty.usbserial-FT9AJZ8W'
 
