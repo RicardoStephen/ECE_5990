@@ -74,7 +74,14 @@ ECE 5990 Lab Report
 							  <p>In order to accomplish our goal of improving performance of “low end” CNC machines, we first had to quantify what we considered good performance. For the scope of this project, we determined that we consider high levels of chatter to be bad performance. Chatter occurs when the machine hits a self-excited level of vibration while machining a part. This can be detrimental to the surface finish of a part, tool life, and the operator's eardrums. There are many ways to reduce chatter, such as using a stiffer setup and better tools. 
                               <br />However, these are parameters that our device cannot control so we sought out other ways to reduce chatter. Other methods of reducing chatter are modifying the feeds and speeds on the machine. The feedrate is defined by how fast the machine will move over the part. The spindle speed is how fast the tool is spinning. Both of these parameters can be set in software and presented an opening that we sought to exploit to reduce chatter. </p>
 							  <p><h2><strong>Hardware: (Ricardo can do this) </strong></h2></p>
-							  <p>We used an Okuma Cadet V OSP5020m for testing. This machine was available to use for Blue Apron Machinists in the Emerson Machine Shop in Rhodes Hall. Since one of the group members had extensive experience working with this machine, we were able to get access to experiment on the machine without any hiccups. Microphone RS232 Cables (Talk about the parameters) </p>
+							  <p>We used an Okuma Cadet V OSP5020m for testing. This machine was available to use for Blue Apron Machinists in the Emerson Machine Shop in Rhodes Hall. Since one of the group members had extensive experience working with this machine, we were able to get access to experiment on the machine without any hiccups.</p>
+                <p>We also used a standard USB microphone in order to measure the amount of noise produced by the mill. The mic was capable of sampling at 44.1kHz, which is the frequency required to capture sounds audible to the human ear. This was much greater than the application requirements, since research showed that the chatter frequencies are almost always found below 2kHz.</p>
+                <p>Lastly, the hardware reqired to intercept communication between the computer and the mill consisted of two RS-232
+
+                  The Okuma mill was connected to a computer that had the necessary software to interface with the mill. The mill and the computer were connected via a DB9-to-DB25 serial connector, and in order to allow the pi to control the mill, the pi had to somehow intercept this connection. This was done using
+
+                  at the machine shop. The computer had the software required to operate the mill. 
+                Microphone RS232 Cables (Talk about the parameters) </p>
 							  <p><h2><strong>Software</strong></h2>&nbsp;</p>
 							  <p>Microphone and FFT </p>
 							  <p>Recompiling </p>
