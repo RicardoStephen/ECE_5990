@@ -14,10 +14,13 @@ import numpy as np
 import pylab
 
 fs,data = wavfile.read(str(sys.argv[1]))
+print(data)
 #channels = [np.array(data[:, 0]), np.array(data[:,1])]
-channels = data
+# channels = data
+
+
 Pxx, f, t, plot = pylab.specgram(
- channels[0],
+ data,
  NFFT=4096,
  Fs=fs,
  detrend=pylab.detrend_none,
