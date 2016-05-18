@@ -1,5 +1,11 @@
 #!/usr/bin/python
 
+################################################################################
+# emulate.py
+# 
+# Note: Must configure parameters like filename and serial port in log_init.py
+################################################################################
+
 import serial
 import pyaudio
 import wave

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ################################################################################
-# pyaudio_record.py wavefilename
+# pyaudio_record.py wavfilename
 # Records audio from the microphone and saves it to the supplied wavefile
 ################################################################################
 
@@ -28,9 +28,9 @@ end_signal = 0
 
 def callback(in_data, frame_count, time_info, status):
     global end_signal
-    print("Callback")
     wf.writeframes(in_data)
     if(end_signal == 1):
+        print("Done recording!")
         wf.close()
         exit()
     else:
@@ -38,6 +38,7 @@ def callback(in_data, frame_count, time_info, status):
 
 p=pyaudio.PyAudio()
 
+print("Recording...")
 inStream = p.open(format = FORMAT,
                   channels=CHANNELS,
                   rate=RATE,

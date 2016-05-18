@@ -1,5 +1,12 @@
 #!/usr/bin/python
 
+################################################################################
+# forward.py
+# Forwards packets from the CNC computer to the CNC mill and starts the mike to
+# record the resulting audio.
+# Note: Must configure parameters like filename and serial port in log_init.py
+################################################################################
+
 import serial
 import pyaudio
 import wave
