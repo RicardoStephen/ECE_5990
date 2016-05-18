@@ -82,24 +82,43 @@ ECE 5990 Lab Report
 
                   at the machine shop. The computer had the software required to operate the mill. 
                 Microphone RS232 Cables (Talk about the parameters) </p>
+                <p><h2><strong>Hardware</strong></h2></p>
+                <p>
+                  We used an Okuma Cadet V OSP5020m for testing. This machine was available to use for Blue Apron Machinists in the Emerson Machine Shop in Rhodes Hall. Since one of the group members had extensive experience working with this machine, we were able to get access to experiment on the machine without any hiccups. <br />
+                  We also used a standard USB microphone in order to record noise from the mill for chatter detection. The USB microphone was capable of recording frequencies as high as 44.1KHz, the maximum frequency audible by human ears. This was far greater than the application requirement, since chatter frequencies almost always occur below 2KHz. <br />
+                  Lastly, we used two serial cables, two Serial-to-USB adapters and one null modem. This was required because the pi intercepted the serial communication line between the computer and the mill by connecting to the computer and the mill over serial lines and then forwarding messages between the two systems. The Serial-to-USB adapters were used connect the pi to each of the two serial cables - one connecting to the computer and the other to the mill. The null modem was required between the computer and the pi because they both act as serial hosts; the null modem was capable of crossing the Tx and Rx lines and all other host-device line pairs so the computer and the pi would each act as devices to the other. The configuration of the communication system can be seen below: <br />
+
 							  <p><h2><strong>Software</strong></h2>&nbsp;</p>
 							  <p>Microphone and FFT </p>
 							  <p>Recompiling </p>
-							  <p><h2><strong>CNC Communication</strong></h2>&nbsp;<br />
-						      </p>
-							  <p>&nbsp;</p>
-                              <div class ="image_div" style="float:right">
-                             	<img class="image_float" src="images/20160516_212136.jpg" width="640" height="320" title="Pi in action" /><br />
-                                Using the Pi as the go-between.
-                                </div>
-							  <p>Our first milestone was figuring out how to communicate with the CNC via RS-232. Initially we used a computer to act as the go between for the CNC Computer and the CNC. We used 2 USB-&gt;RS232 adapters and plugged them into a laptop. One of the RS232 went to the computer, while the other went to the CNC. This allowed the computer to intercept all communication between the two other devices without the other devices knowing that it was even there.</p>
-							  <p>&nbsp;</p>
-							  <p> Initially the RS232 cables we had didn’t have the correct FTDI chips in them and would not work with the CNC. We got better RS232 cables that then were able to work. We were able to send a request of a program from the CNC, capture that transmission on the computer, and then forward that transmission to the CNC computer. The CNC computer then proceeded to dripfeed the GCode program via serial through our inserted computer, which passed it to the CNC. The CNC was actually able to receive the program and run properly. (Our hands were over the emergency stop on the machine the entire time this was happening.) The next step was to accomplish this with the Pi acting as the go-between, which we were able to quickly accomplish since it just involved plugging the Pi in. </p>
+							  <p><h2><strong>CNC Communication</strong></h2></p>
+                <div class ="image_div" style="float:right">
+                  <img class="image_float" src="images/20160516_212136.jpg" width="640" height="320" title="Pi in action" /><br />
+                  Using the Pi as the go-between.
+                </div>
+							  <p>Our first milestone was determining how to communicate with the CNC via RS-232. The software aspect of this simply consisted of using the pySerial library to write python scripts that could easily read and write from serial ports. For initial testing, we used a laptop to read the initial file request send from the CNC mill over serial. A Diablo High Speed USB to DB0 Serial Adapter (not in the parts list since this was only for testing) was connected to the laptop’s USB port, and then to the CNC mill via a serial cable. However, we were unable to read meaningful information over the serial port because the USB-serial adapter did not have the hardware required to implement any flow serial flow control, which was required for proper communication with the CNC.</p>
+                <p>After the initial failed attempts, new USB-serial adapters with the FTDI chips required for serial flow control were acquired and used for testing. Even with the new FTDI chips, testing was required to determine the proper serial parameters used by the CNC mill. Further testing yielded in the following parameters:</p>
+                <ul>
+                  <li style ="list-style-type:square">9600 bps</li>
+                  <li style ="list-style-type:square">Software flow control enabled</li>
+                  <li style ="list-style-type:square">Hardware flow control disabled</li>
+                  <li style ="list-style-type:square">Even parity</li>
+                  <li style ="list-style-type:square">7-bit data size</li>
+                  <li style ="list-style-type:square">2 stop bits</li>
+                </ul>
+                <p>Once the parameters were acquired, it was possible to connect the pi as shown in FIGURE777 and proceed with testing. Then, using the We were able to send a program request from the CNC, capture that transmission on the pi, and then forward that transmission to the CNC computer. The CNC computer then proceeded to dripfeed the GCode program via serial through our pi, which passed it to the CNC. The CNC was actually able to receive the program and run properly. (Our hands were over the emergency stop on the machine the entire time this was happening.)</p>
+
 							  <p>&nbsp;</p>
 							  <p><h2><strong>GCode Parsing <br />
 							    </strong></h2><br />
 							    An important part of our project was the parsing of GCode files to be run on the CNC. This would allow us to visualize what the machine was working on and allow us to map areas of high chatter to locations on the part. In order to accomplish this task, a GCode parser was written in python. The parser is designed to keep track of important global information like the current position, feedrate, tool number, and spindle speed.</p>
 							  <p>&nbsp;</p>
+                <p><h2><strong>CNC Machine Timing</strong></h2></p>
+                <p>The CNC machine posed a major problem while we were testing. An important part of our process was mapping noise levels received to a specific instruction. However, due to the way the CNC operates, there is no real way to know exactly which instruction is being executed at any point in time. This happens because the CNC machine buffers instructions so when the Pi would send an instruction, it doesn’t mean that the CNC is currently executing that instruction. This buffering helps the machine operate by making the transitions between instructions much smoother, but hurts the scope of our project.
+                  <br />
+    In order to get around this problem, we calculated the time it would take for each instruction to execute and attempted to map the time at which we experienced high noise to what instruction the Pi thought it was executing at that time. These timing calculations were embedded into the GCode parser. 
+</p>
+ <p>&nbsp;</p>
 							  <p><h2><strong>Plotting</strong></h2></p>
 							  <p>&nbsp;</p>
 							  <p>An important part of our project was generating a visual from the provided gcode. This allows the machinist to visualize areas that are prone to high noise. This also allows the visualization of how the noise profile changes as the part is machined.</p>
