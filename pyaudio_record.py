@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+################################################################################
+# pyaudio_record.py wavefilename
+# Records audio from the microphone and saves it to the supplied wavefile
+################################################################################
+
 # http://stackoverflow.com/questions/10733903/pyaudio-input-overflowed
 
 import sys

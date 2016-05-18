@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # http://dsp.stackexchange.com/questions/10743/generating-spectrograms-in-python-with-less-noise
 
 import sys
