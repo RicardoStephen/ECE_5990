@@ -14,8 +14,8 @@ import numpy as np
 import pylab
 
 fs,data = wavfile.read(str(sys.argv[1]))
-channels = [np.array(data[:, 0]), np.array(data[:,1])]
-
+#channels = [np.array(data[:, 0]), np.array(data[:,1])]
+channels = data
 Pxx, f, t, plot = pylab.specgram(
  channels[0],
  NFFT=4096,
