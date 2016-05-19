@@ -333,7 +333,7 @@ def parseFile(fileName):
                 total_time += toolChangeTime
                 prevTool    = toolNum
             time  = calcTime(distance, local_feed)
-            write_string = ("%f,%f,%s") %(total_time, total_time+time, line)
+            write_string = ("%f,%f,%s") %(total_time*60, 60*(total_time+time), line)
             mapping_file.write(write_string)
             total_time += time
             prevX = globalX
