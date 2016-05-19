@@ -65,18 +65,20 @@ def recompile(wav_file_name, gcode_file_name, time_mapping_file):
   chatter_points = find_chatter(Pxx, f, t)
   temp = gcode_file_name.split(".min")
   temp = temp[0]+"_recompiled.min"
-  new_gcode = open(temp, "w")
-  for t in chatter_points:
-    for s, e, f, i in g_code:
-      new_gcode.write(i)
-      if( t >=float(s) and t <= float(e)):
-        print("Should modify this instruction:",i,f)
-        print("New feedRate:",int(f)*0.5)
-        print("Index of the instruction", g_code.index((s,e,f,i)))
-        new_feed = "%f"%(math.floor(float(f)*0.5))
-        print(f, new_feed)
-        new_gcode.write(new_feed)
-        #g_code.insert(g_code.index((s,e,f,i)),int(f)*0.5)
+  new_gcode = open(temp, "w+")
+  time_index = 0
+  t = chatter_points[time_index]
+  for s, e, f, i in g_code:
+    new_gcode.write(i)
+    if (t >=float(s) and t <= float(e)):
+      print("Should modify this instruction:",i,f)
+      print("New feedRate:",int(f)*0.5)
+      print("Index of the instruction", g_code.index((s,e,f,i)))
+      new_feed = "F%d\r\n"%(int(math.floor(float(f)*0.5)))
+      print(f, new_feed)
+      new_gcode.write(new_feed)
+      time_index +=1
+      t = chatter_points[time_index]
   new_gcode.close()
 recompile("audio/demo.wav","fake","gcode_time")
 #unpickle("gcode_time")
