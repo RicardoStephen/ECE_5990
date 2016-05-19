@@ -18,7 +18,6 @@ def unpickle(time_mapping_file):
     for line in file:
       s = line.split(",")
       ret.append((s[0], s[1], s[2], s[3]))
-    print(ret)
   return ret
 
 def find_chatter(freq_power_map, frequencies, timestamps):
@@ -35,13 +34,9 @@ def find_chatter(freq_power_map, frequencies, timestamps):
           break
         if(frequencies[j] > freq_low):
           if(power_map[j] > 150):
-            #print(power_map[j])
-            #print("Found some high frequencies",power_map[i],frequencies[i])
             high_chatter_freq += 1
       if(high_chatter_freq >= 5):
         ret.append(t)
-        print("Adding new timestamp to high_freq chart:",t)
-        print("high chatter_freq:",high_chatter_freq)
   return ret
 #def corrrespond_instruction_to_timestamp()
 
@@ -71,11 +66,7 @@ def recompile(wav_file_name, gcode_file_name, time_mapping_file):
   for s, e, f, i in g_code:
     new_gcode.write(i)
     if (t >=float(s) and t <= float(e)):
-      print("Should modify this instruction:",i,f)
-      print("New feedRate:",int(f)*0.5)
-      print("Index of the instruction", g_code.index((s,e,f,i)))
       new_feed = "F%d\r\n"%(int(math.floor(float(f)*0.5)))
-      print(f, new_feed)
       new_gcode.write(new_feed)
       time_index +=1
       t = chatter_points[time_index]
