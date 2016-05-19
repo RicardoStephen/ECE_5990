@@ -280,7 +280,7 @@ def parseFile(fileName):
         global plot_scale
         global  globalX,  globalY, globalZ, globalI, globalJ, feedRate, spindleSpeed, toolNum, toolSize, rapid
         global prevX, prevY, prevZ
-        mapping_file = open("gcode_time", 'wb')
+        mapping_file = open("gcode_time", 'w')
         total_time = 0
         lineNum    = 0
         text       = ''
@@ -333,7 +333,9 @@ def parseFile(fileName):
                 total_time += toolChangeTime
                 prevTool    = toolNum
             time  = calcTime(distance, local_feed)
+            print("feedRate", feedRate)
             write_string = ("%f,%f,%s, %d") %(total_time*60, 60*(total_time+time), line, feedRate)
+            print(write_string)
             mapping_file.write(write_string)
             total_time += time
             prevX = globalX
