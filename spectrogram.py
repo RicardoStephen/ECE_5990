@@ -21,6 +21,8 @@ def generateSpecgram(filename):
   detrend=pylab.detrend_none,
   window=pylab.window_hanning,
   noverlap=int(4096*0.5))
+ print(f)
+ print(t)
  pylab.ylabel('Frequency [Hz]')
  pylab.xlabel('Time [sec]')
  pylab.title('Spectrogram of CNC Noise')
