@@ -334,7 +334,7 @@ def parseFile(fileName):
                 prevTool    = toolNum
             time  = calcTime(distance, local_feed)
             print("feedRate", feedRate)
-            write_string = ("%f,%f,%s, %d") %(total_time*60, 60*(total_time+time), line, feedRate)
+            write_string = ("%f,%f,%d,%s") %(total_time*60, 60*(total_time+time), feedRate, line)
             print(write_string)
             mapping_file.write(write_string)
             total_time += time
