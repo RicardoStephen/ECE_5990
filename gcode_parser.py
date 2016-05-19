@@ -15,7 +15,6 @@ import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
 from matplotlib import cm, colors, patches
 
-
 prevX          = float(0.0)
 prevY          = float(0.0)
 prevZ          = float(0.0)
@@ -30,6 +29,7 @@ toolNum        = 19
 toolSize       = 0
 rapid          = 100
 toolChangeTime = 5/60
+
 def parseM(line, index):
     index += 1
     return index
@@ -235,6 +235,7 @@ def point_over(point, line):
         return point[0]*slope + intercept < point[1]
     else:
         return point[0] > intercept
+
 def law_of_cosines(A_X, A_Y, B_X, B_Y, C_X, C_Y):
     #print("A: (%f,%f)\tB: (%f,%f)\tC: (%f,%f)") % (A_X, A_Y, B_X, B_Y, C_X, C_Y)
     #CNC doesn't do 3D arcs
@@ -249,6 +250,7 @@ def law_of_cosines(A_X, A_Y, B_X, B_Y, C_X, C_Y):
         angle = 2*math.pi-angle
     #print("The Angle returned is: %f") %(angle)
     return (angle,angle*b)
+
 def drawArc():
     global  globalX,  globalY, globalZ, globalI, globalJ, prevX, prevY
     #print("globalX: %f,  globalY:%f, globalZ:%f, globalI:%f, globalJ:%f, prevX:%f, prevY:%f") % (globalX,  globalY, globalZ, globalI, globalJ, prevX, prevY)
@@ -289,6 +291,7 @@ def update_lines(num, dataLines, lines):
         line.set_data(data[0:2, :num])
         line.set_3d_properties(data[2, :num])
     return lines
+
 def parseFile(fileName):
     with open(fileName) as file:
         global plot_scale
@@ -308,9 +311,6 @@ def parseFile(fileName):
         # Attaching 3D axis to the figure
         fig = plt.figure()
         ax = p3.Axes3D(fig)
-        #line_ani = animation.FuncAnimation(fig, update_lines, 25, fargs=(data, lines),
-         #                          interval=50, blit=False)
-        #background = fig.canvas.copy_from_bbox(ax.bbox)
         for line in file:
             lineNum  += 1
             gcode     = line.upper().split()
@@ -326,27 +326,21 @@ def parseFile(fileName):
                 center, radius, angle, length = drawArc()
                 distance                      = length
                 arcs.append(((globalX,globalY,globalZ),(prevX,prevY,prevZ),radius))
-                #arc_patch(center, radius, 180, 90, ax=ax, fill = 'false',color='green')
             elif(movementType == 'G03' or movementType == 'G3'):
                 center, radius, angle, length = drawArc()
                 distance                      = length
                 arcs.append(((prevX,prevY,prevZ),(globalX, globalY, globalZ), radius))
-                #arc1 = mpatches.Arc(center, math.fabs(prevX-globalX), math.fabs(prevY-globalY), math.degrees(angle), 90, 180, color='pink')
-                #ax.add_patch(arc1)
             elif(movementType == 'G00' or movementType == 'G0'):
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
                 lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
                 local_feed = rapid
                 line1 = [(prevX, prevY), (globalX, globalY)]
                 (line1_xs, line1_ys) = zip(*line1)
-                #ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
-                #fig.canvas.restore_region(background)
                 if(first_time == 0):
                     ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
                 else:
                     first_time -= 1
                 # fill in the axes rectangle
-                #fig.canvas.blit(ax.bbox)
             elif(movementType == 'G01' or movementType == 'G1'):
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
                 lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
@@ -356,7 +350,6 @@ def parseFile(fileName):
                     ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
                 else:
                     first_time -= 1
-                #ax.add_line(plt.Line2D(line1_xs, line1_ys, linewidth=2, color='blue'))
             if(prevTool != toolNum):
                 total_time += toolChangeTime
                 prevTool    = toolNum
@@ -366,129 +359,11 @@ def parseFile(fileName):
             prevX = globalX
             prevY = globalY
             prevZ = globalZ
-            #plt.draw()
-            #plt.pause(0.0001)
-            #plt.show()
 
-
-
-        #line_collection = [Gen_Line(s,e) for s,e in lines]
-
-        # Creating fifty line objects.
-        # NOTE: Can't pass empty arrays into 3d version of plot()
-        #lines2 = [ax.plot(dat[0, 0:1], dat[1, 0:1], dat[2, 0:1])[0] for dat in line_collection]
-        # ax.set_xlim3d([0.0, 1.0])
+        # prepare plot
         ax.set_xlabel('X')
-        # ax.set_ylim3d([0.0, 1.0])
         ax.set_ylabel('Y')
-        # ax.set_zlim3d([0.0, 1.0])
         ax.set_zlabel('Z')
         ax.set_title('3D Test')
 
-        #line_animation = animation.FuncAnimation(fig, update_lines, 25, fargs=(line_collection, lines2), interval=50, blit=False, repeat = False)
-
         plt.show()
-        #plt.pause(0.0001)
-
-
-
-
-
-
-
-        # for ((x1, y1, z1), (x2, y2, z2)), index in zip(lines, numpy.arange(len(lines))):
-        #     lines[:, index] =
-
-
-
-
-        #print("Total Time: %f") % total_time
-        #print("Arcs:")
-        '''
-        for p in arcs:
-            s, e, r      = p
-            (x1, y1, z1) = s
-            (x2, y2, z2) = e
-            print("Start: (%f, %f, %f)\t\t|\t\t End:(%f, %f, %f)\t\t|\t\tRadius:%f") % (x1, y1, z1, x2, y2, z2, r)
-        print("Lines:")
-        for w in lines:
-            s, e = w
-            (x1, y1, z1) = s
-            (x2, y2, z2) = e
-            print("Start: (%f, %f, %f)\t\t|\t\t End:(%f, %f, %f)") % (x1, y1, z1, x2, y2, z2)
-        '''
-        # plt.autoscale(True, True, True)
-        # plt.axis('scaled')
-        # plt.show()
-            #CCW Arc: I,J are centerpoints, globalX, globalY are endpoints
-#matplotlib.interactive(True)
-parseFile(str(sys.argv[1]))
-
-#turtle.done()
-
-
-"""
-A simple example of an animated plot... In 3D!
-"""
-# import numpy as np
-# import matplotlib.pyplot as plt
-# import mpl_toolkits.mplot3d.axes3d as p3
-# import matplotlib.animation as animation
-# import time
-
-
-# def Gen_RandLine(length, dims=2):
-#     """
-#     Create a line using a random walk algorithm
-
-#     length is the number of points for the line.
-#     dims is the number of dimensions the line has.
-#     """
-#     lineData = np.empty((dims, length))
-#     lineData[:, 0] = np.random.rand(dims)
-#     for index in range(1, length):
-#         # scaling the random numbers by 0.1 so
-#         # movement is small compared to position.
-#         # subtraction by 0.5 is to change the range to [-0.5, 0.5]
-#         # to allow a line to move backwards.
-#         step = ((np.random.rand(dims) - 0.5) * 0.1)
-#         lineData[:, index] = lineData[:, index - 1] + step
-
-#     return lineData
-
-
-# def update_lines(num, dataLines, lines):
-#     for line, data in zip(lines, dataLines):
-#         # NOTE: there is no .set_data() for 3 dim data...
-#         line.set_data(data[0:2, :num])
-#         line.set_3d_properties(data[2, :num])
-#     return lines
-
-# # Attaching 3D axis to the figure
-# fig = plt.figure()
-# ax = p3.Axes3D(fig)
-
-# # Fifty lines of random 3-D lines
-# data = [Gen_RandLine(25, 3) for index in range(50)]
-
-# # Creating fifty line objects.
-# # NOTE: Can't pass empty arrays into 3d version of plot()
-# lines = [ax.plot(dat[0, 0:1], dat[1, 0:1], dat[2, 0:1])[0] for dat in data]
-
-# # Setting the axes properties
-# ax.set_xlim3d([0.0, 1.0])
-# ax.set_xlabel('X')
-
-# ax.set_ylim3d([0.0, 1.0])
-# ax.set_ylabel('Y')
-
-# ax.set_zlim3d([0.0, 1.0])
-# ax.set_zlabel('Z')
-
-# ax.set_title('3D Test')
-
-# # Creating the Animation object
-# line_ani = animation.FuncAnimation(fig, update_lines, 25, fargs=(data, lines),
-#                                    interval=50, blit=False)
-
-# plt.show()
