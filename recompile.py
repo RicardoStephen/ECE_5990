@@ -16,7 +16,7 @@ def unpickle(time_mapping_file):
     ret = []
     for line in file:
       s = line.split(",")
-      ret.append((s[0], s[1], s[2]))
+      ret.append((s[0], s[1], s[2], s[3]))
     print(ret)
   return ret
 def find_chatter(freq_power_map, frequencies, timestamps):
@@ -49,7 +49,7 @@ def recompile(wav_file_name, gcode_file_name, time_mapping_file):
   #the audio_recording file
 
   #time_mapping_file will basically be the timestamp->gcode mapping
-  #g_code_file format is list containing (time_start, time_end, instruction)
+  #g_code_file format is list containing (time_start, time_end, instruction, feedRate)
   g_code  = unpickle(time_mapping_file)
   fs,data = wavfile.read(wav_file_name)
   Pxx, f, t, plot = pylab.specgram(
@@ -62,11 +62,12 @@ def recompile(wav_file_name, gcode_file_name, time_mapping_file):
   #chatter_points contains a list of time_stamps that relate to the chatter heard
   chatter_points = find_chatter(Pxx, f, t)
   for t in chatter_points:
-    for s, e, i in g_code:
+    for s, e, i, f in g_code:
       print(s,e,i)
       if( t >=float(s) and t <= float(e)):
-        print("Should modify this instruction")
-        print(i)
+        print("Should modify this instruction:",i,f)
+        print("New feedRate:",f*0.5)
+        print("Index of the instruction", g_code.index((s,e,i,f)))
 
 
 recompile("audio/demo.wav","fake","gcode_time")
