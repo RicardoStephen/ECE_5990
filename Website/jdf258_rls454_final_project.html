@@ -78,7 +78,7 @@ ECE 5990 Lab Report
                   We used an Okuma Cadet V OSP5020m for testing. This machine was available to use for Blue Apron Machinists in the Emerson Machine Shop in Rhodes Hall. Since one of the group members had extensive experience working with this machine, we were able to get access to experiment on the machine without any hiccups. <br />
                   We also used a standard USB microphone in order to record noise from the mill for chatter detection. The USB microphone was capable of recording frequencies as high as 44.1KHz, the maximum frequency audible by human ears. This was far greater than the application requirement, since chatter frequencies almost always occur below 2KHz. <br />
                   Lastly, we used two serial cables, two Serial-to-USB adapters and one null modem. This was required because the pi intercepted the serial communication line between the computer and the mill by connecting to the computer and the mill over serial lines and then forwarding messages between the two systems. The Serial-to-USB adapters were used connect the pi to each of the two serial cables - one connecting to the computer and the other to the mill. The null modem was required between the computer and the pi because they both act as serial hosts; the null modem was capable of crossing the Tx and Rx lines and all other host-device line pairs so the computer and the pi would each act as devices to the other. The configuration of the communication system can be seen below: <br />
-                        <img src="images/comm_stack.jpg" alt="" width="70%" height="70%" title="Communication Setup"/>
+                        <center><img src="images/comm_stack.jpg" alt="" width="70%" height="70%" title="Communication Setup"/></center>
                         <br />
                         <br />
 							  <p><h2><strong>Software</strong></h2>&nbsp;</p>
@@ -88,7 +88,7 @@ ECE 5990 Lab Report
                 <br />
                 To test the USB microphone’s functionality, simple python scripts were written to use pyaudio to record audio and then write the data to .wav files. These scripts were successfully tested by recording arbitrary sounds.
     Then, the audio recording was easily transformed into a spectrogram using the specgram method in pylab. A sample spectrogram can be found below:<br />
-      <img src="images/SampleSpecgram.png" alt="" width="70%" height="70%" title="Sample Specgram"/>
+      <center><img src="images/SampleSpecgram.png" alt="" width="70%" height="70%" title="Sample Specgram"/></center>
   </p>
 							  <p><h2><strong>CNC Communication</strong></h2></p>
                 <div class ="image_div" style="float:right">
