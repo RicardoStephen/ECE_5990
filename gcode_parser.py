@@ -15,7 +15,6 @@ import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
 from matplotlib import cm, colors, patches
 
-
 prevX          = float(0.0)
 prevY          = float(0.0)
 prevZ          = float(0.0)
@@ -53,7 +52,6 @@ def parseX(line, index):
 
 def parseY(line, index):
     global globalY
-    print("Found a Y")
     if(not line[index][0] == 'Y'):
         exit(1)
     prevY = globalY
@@ -66,7 +64,6 @@ def parseZ(line, index):
     if(not line[index][0] == 'Z'):
         exit(1)
     prevZ = globalZ
-    print("Found a Z movement")
     globalZ = float(line[index][1:])
     index += 1
     return index
@@ -194,9 +191,6 @@ def parseLine(line):
             print("Valid g command: %s", line)
             i = validGCmds[movementType](line,i)
         else:
-            print(a[0] in validDirections)
-            print(line[i][1:])
-            print(re.match(r"^([-]?\d+\.?\d?)$",line[i][1:]))
             i += 1
 
 plot_scale = 1
@@ -230,6 +224,7 @@ def point_over(point, line):
         return point[0]*slope + intercept < point[1]
     else:
         return point[0] > intercept
+
 def law_of_cosines(A_X, A_Y, B_X, B_Y, C_X, C_Y):
     #CNC doesn't do 3D arcs
     a = calcDistance(B_X, B_Y, 0, C_X, C_Y, 0)
@@ -279,6 +274,7 @@ def update_lines(num, dataLines, lines):
         line.set_data(data[0:2, :num])
         line.set_3d_properties(data[2, :num])
     return lines
+
 def parseFile(fileName):
     with open(fileName) as file:
         global plot_scale
@@ -306,8 +302,6 @@ def parseFile(fileName):
             time       = 0
             local_feed = feedRate
             distance   = 0
-            print(movementType)
-            print(gcode)
             if(movementType == 'G02' or movementType == 'G2'):
                 center, radius, angle, length = drawArc()
                 distance                      = length
@@ -327,8 +321,6 @@ def parseFile(fileName):
                 else:
                     first_time -= 1
             elif(movementType == 'G01' or movementType == 'G1'):
-                print("Made it here")
-                print(globalX, globalY, globalZ, prevX, prevY, prevZ)
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
                 lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
                 line1 = [(prevX, prevY), (globalX, globalY)]
@@ -349,11 +341,8 @@ def parseFile(fileName):
             prevZ = globalZ
 
         ax.set_xlabel('X')
-        # ax.set_ylim3d([0.0, 1.0])
         ax.set_ylabel('Y')
-        # ax.set_zlim3d([0.0, 1.0])
         ax.set_zlabel('Z')
         ax.set_title('3D Test')
 
         plt.show()
-parseFile(str(sys.argv[1]))
