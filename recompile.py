@@ -25,17 +25,21 @@ def find_chatter(freq_power_map, frequencies, timestamps):
   freq_high = 2000
   for i in range(0, len(timestamps)):
     t = timestamps[i]
-    power_map = freq_power_map[i]
-    high_chatter_freq = 0
-    for j in range(0, len(frequencies)):
-      if(frequencies[i] > freq_high):
-        break
-      if(frequencies[i] > freq_low):
-        if(power_map[i] > 10):
-          print("Found some high frequencies")
-          high_chatter_freq += 1
-    if(high_chatter_freq > 5):
-      ret.append(t)
+    if(t > 0.5):
+      power_map = freq_power_map[i]
+      high_chatter_freq = 0
+      for j in range(0, len(frequencies)):
+        if(frequencies[j] > freq_high):
+          break
+        if(frequencies[j] > freq_low):
+          if(power_map[j] > 150):
+            #print(power_map[j])
+            #print("Found some high frequencies",power_map[i],frequencies[i])
+            high_chatter_freq += 1
+      if(high_chatter_freq >= 5):
+        ret.append(t)
+        print("Adding new timestamp to high_freq chart:",t)
+        print("high chatter_freq:",high_chatter_freq)
 
 #def corrrespond_instruction_to_timestamp()
 
@@ -47,7 +51,7 @@ def recompile(wav_file_name, gcode_file_name, time_mapping_file):
   #time_mapping_file will basically be the timestamp->gcode mapping
   #g_code_file format is list containing (time_start, time_end, instruction)
   g_code  = unpickle(time_mapping_file)
-  fs,data = wavfile.read(filename)
+  fs,data = wavfile.read(wav_file_name)
   Pxx, f, t, plot = pylab.specgram(
     data,
     NFFT=4096,
@@ -56,9 +60,9 @@ def recompile(wav_file_name, gcode_file_name, time_mapping_file):
     window=pylab.window_hanning,
     noverlap=int(4096*0.5))
   #chatter_points contains a list of time_stamps that relate to the chatter heard
-  chatter_points = find_chatter(Pcc, f, t)
+  chatter_points = find_chatter(Pxx, f, t)
 
 
 
-
+recompile("audio/demo.wav","fake","gcode_time")
 #unpickle("gcode_time")

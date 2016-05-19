@@ -12,6 +12,7 @@ import pylab
 from spectrogram import generateSpecgram
 import sys
 
+print("Trying to generate the specgram.")
 generateSpecgram(str(sys.argv[1]))
 
 while True:

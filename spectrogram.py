@@ -13,6 +13,7 @@ import numpy as np
 import pylab
 
 def generateSpecgram(filename):
+ print("YO")
  fs,data = wavfile.read(filename)
  Pxx, f, t, plot = pylab.specgram(
   data,
@@ -21,16 +22,10 @@ def generateSpecgram(filename):
   detrend=pylab.detrend_none,
   window=pylab.window_hanning,
   noverlap=int(4096*0.5))
+ print(Pxx[60])
  print(f)
  print(t)
  pylab.ylabel('Frequency [Hz]')
  pylab.xlabel('Time [sec]')
  pylab.title('Spectrogram of CNC Noise')
  pylab.show()
-
-while True:
- try:
-  continue
- except KeyboardInterrupt:
-  pylab.close('all')
-  exit()
