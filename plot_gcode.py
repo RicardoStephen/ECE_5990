@@ -4,6 +4,7 @@ import sys
 from gcode_parser import parseFile
 import matplotlib.pyplot as plt
 
+print("Yo why doesn't this print")
 parseFile(str(sys.argv[1]))
 
 while True:
