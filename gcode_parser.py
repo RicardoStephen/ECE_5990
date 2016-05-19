@@ -42,7 +42,7 @@ def parseM(line, index):
     return index
     '''
 def parseX(line, index):
-    global globalX
+    global globalX, prevX
     if(not line[index][0] == 'X'):
         exit(1)
     prevX = globalX
@@ -51,7 +51,7 @@ def parseX(line, index):
     return index
 
 def parseY(line, index):
-    global globalY
+    global globalY, prevY
     if(not line[index][0] == 'Y'):
         exit(1)
     prevY = globalY
@@ -60,7 +60,7 @@ def parseY(line, index):
     return index
 
 def parseZ(line, index):
-    global globalZ
+    global globalZ, prevZ
     if(not line[index][0] == 'Z'):
         exit(1)
     prevZ = globalZ
@@ -188,7 +188,6 @@ def parseLine(line):
         if( a in validCmds):
             i = validCmds[a](line,i)
         elif( a[0] in validDirections and re.match(r"^([-]?\d+\.?\d?)$",line[i][1:]) is not None):
-            print("Valid g command: %s", line)
             i = validGCmds[movementType](line,i)
         else:
             i += 1
@@ -225,12 +224,23 @@ def point_over(point, line):
     else:
         return point[0] > intercept
 
+def truncate(f, n):
+    '''Truncates/pads a float f to n decimal places without rounding'''
+    s = '{}'.format(f)
+    if 'e' in s or 'E' in s:
+        return '{0:.{1}f}'.format(f, n)
+    i, p, d = s.partition('.')
+    return '.'.join([i, (d+'0'*n)[:n]])
+
 def law_of_cosines(A_X, A_Y, B_X, B_Y, C_X, C_Y):
     #CNC doesn't do 3D arcs
     a = calcDistance(B_X, B_Y, 0, C_X, C_Y, 0)
     b = calcDistance(A_X, A_Y, 0, C_X, C_Y, 0)
     c = calcDistance(A_X, A_Y, 0, B_X, B_Y, 0)
-    angle = math.acos((b*b+ b*b - a*a)/(2*b*b))
+    temp = ((b*b + b*b - a*a)/(2*b*b))
+    if(math.fabs(temp)>1):
+        return (math.pi, math.pi*b)
+    angle = math.acos((b*b + b*b - a*a)/(2*b*b))
     if(point_over([B_X, B_Y], calc_line(C_X, C_Y, A_X, A_Y))):
         angle = 2*math.pi-angle
     return (angle,angle*b)
@@ -305,11 +315,11 @@ def parseFile(fileName):
             if(movementType == 'G02' or movementType == 'G2'):
                 center, radius, angle, length = drawArc()
                 distance                      = length
-                arcs.append(((globalX,globalY,globalZ),(prevX,prevY,prevZ),radius))
+                #arcs.append(((globalX,globalY,globalZ),(prevX,prevY,prevZ),radius))
             elif(movementType == 'G03' or movementType == 'G3'):
                 center, radius, angle, length = drawArc()
                 distance                      = length
-                arcs.append(((prevX,prevY,prevZ),(globalX, globalY, globalZ), radius))
+                #arcs.append(((prevX,prevY,prevZ),(globalX, globalY, globalZ), radius))
             elif(movementType == 'G00' or movementType == 'G0'):
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
                 lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
@@ -317,7 +327,8 @@ def parseFile(fileName):
                 line1 = [(prevX, prevY), (globalX, globalY)]
                 (line1_xs, line1_ys) = zip(*line1)
                 if(first_time == 0):
-                    ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
+                    pass
+                    #ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
                 else:
                     first_time -= 1
             elif(movementType == 'G01' or movementType == 'G1'):
@@ -326,7 +337,8 @@ def parseFile(fileName):
                 line1 = [(prevX, prevY), (globalX, globalY)]
                 (line1_xs, line1_ys) = zip(*line1)
                 if(first_time == 0):
-                    ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
+                    if(globalX != prevX and globalY != prevY):
+                        ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
                 else:
                     first_time -= 1
             if(prevTool != toolNum):
