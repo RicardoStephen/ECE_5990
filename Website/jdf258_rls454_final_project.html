@@ -73,24 +73,23 @@ ECE 5990 Lab Report
 							  <p>&nbsp;</p>
 							  <p>In order to accomplish our goal of improving performance of “low end” CNC machines, we first had to quantify what we considered good performance. For the scope of this project, we determined that we consider high levels of chatter to be bad performance. Chatter occurs when the machine hits a self-excited level of vibration while machining a part. This can be detrimental to the surface finish of a part, tool life, and the operator's eardrums. There are many ways to reduce chatter, such as using a stiffer setup and better tools. 
                               <br />However, these are parameters that our device cannot control so we sought out other ways to reduce chatter. Other methods of reducing chatter are modifying the feeds and speeds on the machine. The feedrate is defined by how fast the machine will move over the part. The spindle speed is how fast the tool is spinning. Both of these parameters can be set in software and presented an opening that we sought to exploit to reduce chatter. </p>
-							  <p><h2><strong>Hardware: (Ricardo can do this) </strong></h2></p>
-							  <p>We used an Okuma Cadet V OSP5020m for testing. This machine was available to use for Blue Apron Machinists in the Emerson Machine Shop in Rhodes Hall. Since one of the group members had extensive experience working with this machine, we were able to get access to experiment on the machine without any hiccups.</p>
-                <p>We also used a standard USB microphone in order to measure the amount of noise produced by the mill. The mic was capable of sampling at 44.1kHz, which is the frequency required to capture sounds audible to the human ear. This was much greater than the application requirements, since research showed that the chatter frequencies are almost always found below 2kHz.</p>
-                <p>Lastly, the hardware reqired to intercept communication between the computer and the mill consisted of two RS-232
-
-                  The Okuma mill was connected to a computer that had the necessary software to interface with the mill. The mill and the computer were connected via a DB9-to-DB25 serial connector, and in order to allow the pi to control the mill, the pi had to somehow intercept this connection. This was done using
-
-                  at the machine shop. The computer had the software required to operate the mill. 
-                Microphone RS232 Cables (Talk about the parameters) </p>
                 <p><h2><strong>Hardware</strong></h2></p>
                 <p>
                   We used an Okuma Cadet V OSP5020m for testing. This machine was available to use for Blue Apron Machinists in the Emerson Machine Shop in Rhodes Hall. Since one of the group members had extensive experience working with this machine, we were able to get access to experiment on the machine without any hiccups. <br />
                   We also used a standard USB microphone in order to record noise from the mill for chatter detection. The USB microphone was capable of recording frequencies as high as 44.1KHz, the maximum frequency audible by human ears. This was far greater than the application requirement, since chatter frequencies almost always occur below 2KHz. <br />
                   Lastly, we used two serial cables, two Serial-to-USB adapters and one null modem. This was required because the pi intercepted the serial communication line between the computer and the mill by connecting to the computer and the mill over serial lines and then forwarding messages between the two systems. The Serial-to-USB adapters were used connect the pi to each of the two serial cables - one connecting to the computer and the other to the mill. The null modem was required between the computer and the pi because they both act as serial hosts; the null modem was capable of crossing the Tx and Rx lines and all other host-device line pairs so the computer and the pi would each act as devices to the other. The configuration of the communication system can be seen below: <br />
-
+                        <img src="images/comm_stack.jpg" alt="" width="70%" height="70%" title="Communication Setup"/>
+                        <br />
+                        <br />
 							  <p><h2><strong>Software</strong></h2>&nbsp;</p>
-							  <p>Microphone and FFT </p>
-							  <p>Recompiling </p>
+							  <p><h2><strong>Microphone and FFT</strong></h2> </p>
+               <p>
+                Setting up the USB microphone first consisted of installing the proper libraries to interface with the USB microphone. First, the ALSA sound API was installed to allow python programs to more easily interface with sound cards. Then, pyaudio and portaudio (a dependency for pyaudio) were installed; pyaudio was then used to to read from the microphone using python. Additionally, python’s wave module was used to write this audio data to .wav files.
+                <br />
+                To test the USB microphone’s functionality, simple python scripts were written to use pyaudio to record audio and then write the data to .wav files. These scripts were successfully tested by recording arbitrary sounds.
+    Then, the audio recording was easily transformed into a spectrogram using the specgram method in pylab. A sample spectrogram can be found below:<br />
+      <img src="images/SampleSpecgram.png" alt="" width="70%" height="70%" title="Sample Specgram"/>
+  </p>
 							  <p><h2><strong>CNC Communication</strong></h2></p>
                 <div class ="image_div" style="float:right">
                   <img class="image_float" src="images/20160516_212136.jpg" width="640" height="320" title="Pi in action" /><br />
@@ -136,23 +135,22 @@ ECE 5990 Lab Report
 							<div class="yui-u">
 							  <p><h2><strong>GCode Parser </strong></h2></p>
 							  <p>&nbsp;</p>
-                             
 							  <p>The parser was tested with various GCode programs provided by the Cornell Baja SAE and Resistance Racing: Cornell Electric Motorcycle project teams. These programs were considered good candidates because they were quite long (~50,000 lines) and were all parts that we had access to the CADs of to check our visualization against. <br />
 						      </p>
                                <figure>
                                 <center>
                              	<img src="images/FSPO2.png" style = "border:thin" alt="" width="400" height="200"/>
-                               <figcaption>FigXXXXX. 2D rendering generated by GCode Parser</figcaption></center>
+                               <figcaption>2D rendering generated by GCode Parser</figcaption></center>
                                </figure>
                                <figure>
                                 <center>
                              	<img src="images/FSOP3D.png" style = "border:thin" alt="" width="400" height="200"/>
-                               <figcaption>FigXXXXX.3D Render generated by GCode Parser</figcaption></center>
+                               <figcaption>3D Render generated by GCode Parser</figcaption></center>
                                </figure>
                                 <figure>
                                 <center>
                              	<img src="images/FSOP.jpg" style = "border:thin" alt="" width="400" height="200"/>
-                               <figcaption>FigXXXXX.Actual Manufactured Part</figcaption></center>
+                               <figcaption>Actual Manufactured Part</figcaption></center>
                                </figure>
 
 							  <p>&nbsp;</p>
@@ -166,7 +164,6 @@ ECE 5990 Lab Report
 							</div>
 						</div><!--// Your section has ended -->
 
-						
 						<div class="yui-gf"> <!--// This is a section -->
 							<div class="yui-u first">
 								<h2>Drawings</h2> <!--// put your heading here -->
@@ -179,36 +176,13 @@ ECE 5990 Lab Report
                             <div style ="text-align: center">
 <figure>
                	<img src="images/20160516_211435.jpg" alt="" width="640" height="320" title="Ricardo hard at work"/>
-               	<figcaption>Fig3. - A view of the pulpit rock in Norway.</figcaption>
+               	<figcaption>Ricardo hard at work</figcaption>
                              	</figure> 
                                 <figure>
                              	<img src="images/20160516_210720.jpg" alt="" width="640" height="320" title="Inside the Okuma"/>
-                             	<figcaption>Fig4. - A view of the pulpit rock in Norway.</figcaption>
-                             	</figure> 
-                           
-                                 <figure>
-                             	 <img src="images/Rub2.png" width="400" height="200" alt=""/>
-                             	<figcaption>Fig6. - A view of the pulpit rock in Norway.</figcaption>
-                             	</figure> 
-                                <figure>
-                                <img src="images/LiteR2.png" width="400" height="200" alt=""/>
-                                <figcaption>Fig7. - A view of the pulpit rock in Norway.</figcaption>
+                             	<figcaption>Hacking inside the Okuma</figcaption>
                              	</figure>
-							
-                            
-                           
-                           
-                           
-                           
                             </div>
-							<div class="yui-u">
-							  <p>&nbsp;</p>
-							  <br />
-							  <p>&nbsp;</p>
-							  <!--// Put Content here -->
-							    </p>
-							  <p> Credits to XKCD </p>
-							</div>
 						</div><!--// Your section has ended -->
 
 						<div class="yui-gf"> <!--// This is a section -->
@@ -216,7 +190,8 @@ ECE 5990 Lab Report
 								<h2>Results</h2> <!--// put your heading here -->
 							</div>
 							<div class="yui-u">
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+								<p>Our final system that we designed was able to accomplish all of the milestones that we sought out to achieve. We built a fully functional GCode Parser, inserted the Raspberry Pi into the communication loop, were able to plot GCode programs, and use a microphone and fft for noise detection. All of our subsystems for the project worked properly.<br />
+    However, there was a major design flaw that were not able to overcome: The inability to determine which instruction the CNC machine is executing. This flaw prevented us from confidently recompiling the program to modulate the feeds and speeds to reduce chatter.
 								</p> <!--// Put Content here -->
 							</div>
 						</div><!--// Your section has ended -->
@@ -226,10 +201,24 @@ ECE 5990 Lab Report
 								<h2>Conclusion</h2> <!--// put your heading here -->
 							</div>
 							<div class="yui-u">
-								<p>Yay !!! Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+								<p>This project was an experience. We were able to accomplish all of our subsystems, but were held up with unexpected difficulty with the CNC machine itself. 
+We were able to communicate with the CNC without using a licensed Direct Numerical Control software package. In essence, we removed the CNC computer from the equation entirely which is pretty cool.
+So in conclusion, we are very happy with what we were able to accomplish with this project and how it turned out.
 								</p> <!--// Put Content here -->
 							</div>
 						</div><!--// Your section has ended -->
+          <div class="yui-gf"> <!--// This is a section -->
+              <div class="yui-u first">
+                <h2>Future Work</h2> <!--// put your heading here -->
+              </div>
+              <div class="yui-u">
+                <p>In the future it would be useful to take this system and figure out a good way to recompiling the GCode on the fly. After talking with some of the Emerson Machine Shop Staff, there are some very hacky avenues we can attempt using the CNC and how it operates. We also believe that with more testing, we can finetune our timing estimation and add in sync points to the program to help it keep track of what code is executing. Another avenue would be to have the Pi interact with the manual overrides on the machine and modulate the feeds and speeds that way. We discouraged this approach because it would not allow the user to recompile the program with better feeds and speeds.
+    <br />Another avenue we wish to explore would be reatime plotting as instructions are being executed. This would be a very cool feature for an operator to have so they can know how far along a part is in case they cannot view the part.
+    <br />The Pi is also a very good platform for creating a DNC computer. It is small, cheap, and does everything you would want that computer to be doing, plus has the ability to be easily be expanded upon. Our current project removes the existing computer from the Emerson machine shop and with a little touching up on the UI, can be just as configurable.
+    <br />We would also like to develop a waterproof/shockproof case for the Pi to make sure it stays safe when it is in the machine shop environment.
+                </p> <!--// Put Content here -->
+              </div>
+            </div><!--// Your section has ended -->
 
 					<div class="yui-gf">
 						<div class="yui-u first">
@@ -1127,6 +1116,19 @@ parseFile(<span style="color: #007020">str</span>(sys<span style="color: #333333
 						</div>
 					</div>
 					</div>
+          <div class="yui-gf">
+            <div class="yui-u first">
+              <h2>References</h2>
+            </div>
+            <div class="yui-u">
+              <a href="http://matplotlib.org/"> http://matplotlib.org/</a><br />
+              <a href="http://www.cnccookbook.com/CCCNCMillFeedsSpeedsChatter.htm">http://www.cnccookbook.com/CCCNCMillFeedsSpeedsChatter.htm</a> <br />
+              <a href="http://cncmanual.com/okuma-osp5020m-osp500m-g-programming-manual/">http://cncmanual.com/okuma-osp5020m-osp500m-g-programming-manual/</a>
+            </div>
+          </div>
+          </div>
+
+        </div><!--// .yui-b -->
 
 					<div class="yui-gf">
 						<div class="yui-u first">
@@ -1135,6 +1137,8 @@ parseFile(<span style="color: #007020">str</span>(sys<span style="color: #333333
 						<div class="yui-u">
 						  <p> Jay Fetter </p>
 						  <p>jdf258@cornell.edu </p>
+              <p>Ricardo Stephen</p>
+              <p>rls454@cornell.edu</p>
 						</div>
 					</div>
 					</div>
