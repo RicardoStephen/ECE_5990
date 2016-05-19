@@ -10,6 +10,7 @@
 from scipy.io import wavfile
 import numpy as np
 import pylab
+import math
 
 def unpickle(time_mapping_file):
   with open(time_mapping_file) as file:
@@ -19,6 +20,7 @@ def unpickle(time_mapping_file):
       ret.append((s[0], s[1], s[2], s[3]))
     print(ret)
   return ret
+
 def find_chatter(freq_power_map, frequencies, timestamps):
   ret = []
   freq_low = 1
@@ -61,14 +63,20 @@ def recompile(wav_file_name, gcode_file_name, time_mapping_file):
     noverlap=int(4096*0.5))
   #chatter_points contains a list of time_stamps that relate to the chatter heard
   chatter_points = find_chatter(Pxx, f, t)
+  temp = gcode_file_name.split(".min")
+  temp = temp[0]+"_recompiled.min"
+  new_gcode = open(temp, "w")
   for t in chatter_points:
     for s, e, f, i in g_code:
-      print(s,e,i)
+      new_gcode.write(i)
       if( t >=float(s) and t <= float(e)):
         print("Should modify this instruction:",i,f)
         print("New feedRate:",int(f)*0.5)
         print("Index of the instruction", g_code.index((s,e,f,i)))
-
-
+        new_feed = "%f"%(math.floor(float(f)*0.5))
+        print(f, new_feed)
+        new_gcode.write(new_feed)
+        #g_code.insert(g_code.index((s,e,f,i)),int(f)*0.5)
+  new_gcode.close()
 recompile("audio/demo.wav","fake","gcode_time")
 #unpickle("gcode_time")
