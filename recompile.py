@@ -61,7 +61,11 @@ def recompile(wav_file_name, gcode_file_name, time_mapping_file):
     noverlap=int(4096*0.5))
   #chatter_points contains a list of time_stamps that relate to the chatter heard
   chatter_points = find_chatter(Pxx, f, t)
-
+  for t in chatter_points:
+    for s, e, i in g_code:
+      if( t >= s and t <=e):
+        print("Should modify this instruction")
+        print(i)
 
 
 recompile("audio/demo.wav","fake","gcode_time")
