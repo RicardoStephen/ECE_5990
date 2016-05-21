@@ -28,8 +28,8 @@ spindleSpeed   = 0
 toolNum        = 19
 toolSize       = 0
 rapid          = 100
-toolChangeTime = 5/60
-
+toolChangeTime = 5/60.0
+instruction_lag= 0.3/60
 def parseM(line, index):
     index += 1
     return index
@@ -188,6 +188,7 @@ def parseLine(line):
         if( a in validCmds):
             i = validCmds[a](line,i)
         elif( a[0] in validDirections and re.match(r"^([-]?\d+\.?\d?)$",line[i][1:]) is not None):
+            #print("Found valid g command:")
             i = validGCmds[movementType](line,i)
         else:
             i += 1
@@ -291,7 +292,7 @@ def parseFile(fileName):
         global  globalX,  globalY, globalZ, globalI, globalJ, feedRate, spindleSpeed, toolNum, toolSize, rapid
         global prevX, prevY, prevZ
         mapping_file = open("gcode_time", 'w')
-        total_time = 0
+        total_time = 17/60.0
         lineNum    = 0
         text       = ''
         count      = 0
@@ -327,31 +328,36 @@ def parseFile(fileName):
                 line1 = [(prevX, prevY), (globalX, globalY)]
                 (line1_xs, line1_ys) = zip(*line1)
                 if(first_time == 0):
-                    pass
-                    #ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
+                    # pass
+                    ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
                 else:
                     first_time -= 1
             elif(movementType == 'G01' or movementType == 'G1'):
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
+                print("yo in this function: ", distance)
                 lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
                 line1 = [(prevX, prevY), (globalX, globalY)]
                 (line1_xs, line1_ys) = zip(*line1)
                 if(first_time == 0):
-                    if(globalX != prevX and globalY != prevY):
-                        ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
+                    # if(globalX != prevX and globalY != prevY):
+                    ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
                 else:
                     first_time -= 1
+            
+            print(prevTool, toolNum)
             if(prevTool != toolNum):
                 total_time += toolChangeTime
                 prevTool    = toolNum
             time  = calcTime(distance, local_feed)
-            write_string = ("%f,%f,%d,%s") %(total_time*60, 60*(total_time+time), feedRate, line)
+            print("Time: ",time, "distance",distance,"local feed",local_feed)
+            write_string = ("%f,%f,%d,%s") %(total_time*60, 60*(total_time+time+instruction_lag), feedRate, line)
             mapping_file.write(write_string)
             total_time += time
+            total_time += instruction_lag
             prevX = globalX
             prevY = globalY
             prevZ = globalZ
-
+        mapping_file.close()
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')

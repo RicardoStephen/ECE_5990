@@ -41,7 +41,7 @@ def callback(in_data, frame_count, time_info, status):
 p=pyaudio.PyAudio()
 
 # Read from cnc mill for filename
-printf('Reading from CNC mill\n')
+print('Reading from CNC mill\n')
 flag = True
 while flag:
     buff = dev_serial.read(num_chars)
@@ -77,14 +77,13 @@ while not end_signal:
         host_file.close()
         end_signal = True
 
-while not audio_end:
-    continue
+parseFile(HOST_FILENAME)
 
 # generate the spectrogram
 generateSpecgram(WAVE_OUTPUT_FILENAME)
 
 # generate the gcode plot
-parseFile(HOST_FILENAME)
+# parseFile(HOST_FILENAME)
 
 # wait for exit
 while True:

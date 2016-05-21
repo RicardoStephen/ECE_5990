@@ -17,8 +17,8 @@ TIMESTAMP = str(int(time.time()))
 WAVE_OUTPUT_FILENAME = "audio/async_"+TIMESTAMP+".wav"
 DEV_FILENAME = 'log/connect_dev_'+TIMESTAMP+'.txt' # cnc computer
 HOST_FILENAME = 'log/connect_host_'+TIMESTAMP+'.txt' # cnc mill
-DEV_NAME = '/dev/tty.usbserial-FT9AJZ83'
-HOST_NAME = '/dev/tty.usbserial-FT9AJZ8W'
+DEV_NAME = '/dev/ttyUSB0'
+HOST_NAME = '/dev/ttyUSB1'
 
 # audio parameters
 CHUNK = 2**12
@@ -36,6 +36,7 @@ TIMEOUT = 1
 PARITY = serial.PARITY_EVEN
 BYTESIZE=serial.SEVENBITS
 STOPBITS=serial.STOPBITS_TWO
+num_chars = 100
 
 def openWf():
     wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
@@ -55,6 +56,6 @@ def openDevSerial():
                          rtscts=RTSCTS, timeout=TIMEOUT, parity=PARITY,
                          bytesize=BYTESIZE, stopbits=STOPBITS)
 def openHostSerial():
-    serial.Serial(port=HOST_NAME, baudrate=BAUDRATE, xonxoff=XONXOFF,
-                  rtscts=RTSCTS, timeout=TIMEOUT, parity=PARITY,
-                  bytesize=BYTESIZE, stopbits=STOPBITS)
+    return serial.Serial(port=HOST_NAME, baudrate=BAUDRATE, xonxoff=XONXOFF,
+                         rtscts=RTSCTS, timeout=TIMEOUT, parity=PARITY,
+                         bytesize=BYTESIZE, stopbits=STOPBITS)
