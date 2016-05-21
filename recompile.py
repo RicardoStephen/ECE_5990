@@ -26,36 +26,20 @@ def find_chatter(freq_power_map, frequencies, timestamps):
   freq_low = 1
   freq_high = 2500
   start_up_time = 20
- # print(freq_power_map)
- # print(len(timestamps))
-  max_list = []
   for i in range(0, len(timestamps)):
     t = timestamps[i]
-    #print(t)
     if(t > start_up_time):
       power_map = freq_power_map[i]
-      #max_list.append(max(power_map))
-      local_max_pwr  = 0
-      local_max_freq = 0
       high_chatter_freq = 0
-      #print(len(frequencies),len(power_map))
       for j in range(0, len(frequencies)):
-        #if(local_max_list < power_map[j]):
-         # local_max_list = power_map[j]
         if(frequencies[j] > freq_high):
           break
         if(frequencies[j] > freq_low):
-          #print(frequencies[j],power_map[j])
-          #print(local_max_list)
-          if(local_max_pwr < power_map[j]):
-            local_max_pwr = power_map[j]
-            local_max_freq = frequencies[j]
           if(power_map[j] > 100):
             high_chatter_freq += 1
             
       if(high_chatter_freq >= 1):
         ret.append(t)
-        #print(t)
   return ret
 
 def recompile(wav_file_name, gcode_file_name, time_mapping_file):
@@ -83,11 +67,7 @@ def recompile(wav_file_name, gcode_file_name, time_mapping_file):
   t = chatter_points[time_index]
   #print(chatter_points)
   #print(len(chatter_points))
-  print("1.0 < 2.0", 1.0 < 2.0)
   for s, e, f, i in g_code:
-    #print(t,float(s),float(e))
-    print("t <=float(e))",float(t)<float(e))
-    print("t >= float(s)", float(t)>float(s))
     while(t <= float(s) and time_index < len(chatter_points)):
       time_index += 1
       if(time_index < len(chatter_points)):
@@ -96,9 +76,7 @@ def recompile(wav_file_name, gcode_file_name, time_mapping_file):
       new_feed = "F%d\r\n"%(int(math.floor(float(f)*0.5)))
       new_gcode.write(new_feed)
       time_index +=1
-      print("Yo new time index")
     new_gcode.write(i)
 
   new_gcode.close()
 recompile(str(sys.argv[1]),"chatter_test","gcode_time")
-#unpickle("gcode_time")
