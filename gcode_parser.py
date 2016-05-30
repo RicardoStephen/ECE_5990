@@ -334,7 +334,6 @@ def parseFile(fileName):
                     first_time -= 1
             elif(movementType == 'G01' or movementType == 'G1'):
                 distance = calcDistance(globalX, globalY, globalZ, prevX, prevY, prevZ)
-                print("yo in this function: ", distance)
                 lines.append(((prevX, prevY, prevZ), (globalX, globalY, globalZ)))
                 line1 = [(prevX, prevY), (globalX, globalY)]
                 (line1_xs, line1_ys) = zip(*line1)
@@ -343,13 +342,10 @@ def parseFile(fileName):
                     ax.plot((prevX, globalX), (prevY, globalY), (prevZ, globalZ))
                 else:
                     first_time -= 1
-            
-            print(prevTool, toolNum)
             if(prevTool != toolNum):
                 total_time += toolChangeTime
                 prevTool    = toolNum
             time  = calcTime(distance, local_feed)
-            print("Time: ",time, "distance",distance,"local feed",local_feed)
             write_string = ("%f,%f,%d,%s") %(total_time*60, 60*(total_time+time+instruction_lag), feedRate, line)
             mapping_file.write(write_string)
             total_time += time
@@ -361,6 +357,6 @@ def parseFile(fileName):
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
-        ax.set_title('3D Test')
+        ax.set_title('GCode Visualizer')
 
         plt.show()
